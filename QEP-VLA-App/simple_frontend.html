@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QEP-VLA Platform Frontend</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active { background-color: #ffffff; }
+        .status-inactive { background-color: #ffffff; }
+        .response {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        .input-group input::placeholder, .input-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 QEP-VLA Platform</h1>
+            <p>Quantum-Enhanced Privacy Vision-LiDAR-AI System</p>
+        </div>
+
+        <div class="card">
+            <h3>🚀 System Status</h3>
+            <div class="metric">
+                <span>API Health:</span>
+                <span class="metric-value" id="api-health">Checking...</span>
+            </div>
+            <div class="metric">
+                <span>System Status:</span>
+                <span class="metric-value" id="system-status">Loading...</span>
+            </div>
+            <button class="btn btn-primary" onclick="checkHealth()">🔄 Check Health</button>
+        </div>
+
+        <div class="card">
+            <h3>🧭 Navigation Test</h3>
+            <div class="input-group">
+                <label>Language Command:</label>
+                <input type="text" id="nav-command" placeholder="Navigate to the parking garage" value="Navigate to the parking garage">
+            </div>
+            <div class="input-group">
+                <label>Privacy Level:</label>
+                <select id="privacy-level" style="width: 100%; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="testNavigation()">🧭 Test Navigation</button>
+            <div id="nav-response" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="card">
+            <h3>🔐 Privacy Transform Test</h3>
+            <div class="input-group">
+                <label>Transform Type:</label>
+                <select id="transform-type" style="width: 100%; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                    <option value="quantum_noise">Quantum Noise</option>
+                    <option value="entanglement_masking">Entanglement Masking</option>
+                    <option value="superposition_encoding">Superposition Encoding</option>
+                    <option value="quantum_key_encryption">Quantum Key Encryption</option>
+                    <option value="phase_encoding">Phase Encoding</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Test Data (JSON array):</label>
+                <textarea id="test-data" rows="3" placeholder="[[1,2,3],[4,5,6],[7,8,9]]">[[1,2,3],[4,5,6],[7,8,9]]</textarea>
+            </div>
+            <button class="btn btn-primary" onclick="testPrivacyTransform()">🔐 Test Privacy Transform</button>
+            <div id="privacy-response" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="card">
+            <h3>📊 System Metrics</h3>
+            <button class="btn btn-primary" onclick="getSystemMetrics()">📊 Get Metrics</button>
+            <div id="metrics-response" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="card">
+            <h3>🔗 API Endpoints</h3>
+            <p>Available endpoints:</p>
+            <ul>
+                <li><strong>Health:</strong> <a href="http://localhost:8000/health/" target="_blank" style="color: #ffffff;">http://localhost:8000/health/</a></li>
+                <li><strong>API Docs:</strong> <a href="http://localhost:8000/docs" target="_blank" style="color: #ffffff;">http://localhost:8000/docs</a></li>
+                <li><strong>System Status:</strong> <a href="http://localhost:8000/api/v1/system/status" target="_blank" style="color: #ffffff;">http://localhost:8000/api/v1/system/status</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        // Check API health on load
+        window.addEventListener('load', function() {
+            checkHealth();
+        });
+
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health/`);
+                const data = await response.json();
+                
+                document.getElementById('api-health').textContent = data.status;
+                document.getElementById('system-status').textContent = 'Connected';
+                
+                if (data.status === 'healthy') {
+                    document.getElementById('api-health').style.color = '#ffffff';
+                } else {
+                    document.getElementById('api-health').style.color = '#ffffff';
+                }
+            } catch (error) {
+                document.getElementById('api-health').textContent = 'Error';
+                document.getElementById('api-health').style.color = '#ffffff';
+                document.getElementById('system-status').textContent = 'Disconnected';
+                console.error('Health check failed:', error);
+            }
+        }
+
+        async function testNavigation() {
+            const command = document.getElementById('nav-command').value;
+            const privacyLevel = document.getElementById('privacy-level').value;
+            const responseDiv = document.getElementById('nav-response');
+            
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'Testing navigation...';
+
+            try {
+                const requestData = {
+                    camera_data: Array(224).fill().map(() => Array(224).fill().map(() => [0.5, 0.5, 0.5])),
+                    lidar_data: Array(1000).fill().map(() => [Math.random(), Math.random(), Math.random()]),
+                    imu_data: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+                    language_command: command,
+                    privacy_level: privacyLevel,
+                    quantum_enhanced: true
+                };
+
+                const response = await fetch(`${API_BASE}/api/v1/navigate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testPrivacyTransform() {
+            const transformType = document.getElementById('transform-type').value;
+            const testData = document.getElementById('test-data').value;
+            const responseDiv = document.getElementById('privacy-response');
+            
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'Testing privacy transform...';
+
+            try {
+                const requestData = {
+                    data: JSON.parse(testData),
+                    transform_type: transformType,
+                    privacy_level: "high"
+                };
+
+                const response = await fetch(`${API_BASE}/api/v1/privacy/transform`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function getSystemMetrics() {
+            const responseDiv = document.getElementById('metrics-response');
+            
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'Getting system metrics...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/system/metrics`);
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

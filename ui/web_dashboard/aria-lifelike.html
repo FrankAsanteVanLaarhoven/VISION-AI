@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARIA - Lifelike AI Assistant with Advanced Animation</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "@splinetool/runtime": "https://unpkg.com/@splinetool/runtime@1.6.2/build/runtime.js",
+          "three": "https://unpkg.com/three@0.155.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.155.0/examples/jsm/"
+        }
+      }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .robot-container {
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            height: 600px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .avatar-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .robot-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            backdrop-filter: blur(15px);
+            z-index: 10;
+            max-width: 350px;
+        }
+
+        .assistant-info {
+            margin-bottom: 15px;
+        }
+
+        .assistant-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .emotion-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: emotion-pulse 2s infinite;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .listening-dot {
+            background: #f59e0b !important;
+            animation: listening-pulse 0.5s infinite;
+        }
+
+        .speaking-dot {
+            background: #8b5cf6 !important;
+            animation: speaking-pulse 1s infinite;
+        }
+
+        .thinking-dot {
+            background: #06b6d4 !important;
+            animation: thinking-pulse 0.3s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        @keyframes listening-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.4); }
+        }
+
+        @keyframes speaking-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        @keyframes thinking-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            25% { opacity: 0.8; transform: scale(1.1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+            75% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        @keyframes emotion-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .emotion-happy { background: #10b981 !important; }
+        .emotion-curious { background: #06b6d4 !important; }
+        .emotion-focused { background: #8b5cf6 !important; }
+        .emotion-friendly { background: #f59e0b !important; }
+        .emotion-surprised { background: #ef4444 !important; }
+        .emotion-neutral { background: #6b7280 !important; }
+
+        .conversation-display {
+            max-height: 180px;
+            overflow-y: auto;
+            background: rgba(17, 24, 39, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .conversation-item {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .user-message {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 3px solid #3b82f6;
+            text-align: right;
+        }
+
+        .assistant-message {
+            background: rgba(168, 85, 247, 0.2);
+            border-left: 3px solid #a855f7;
+        }
+
+        .animation-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            z-index: 10;
+        }
+
+        .animation-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e5e7eb;
+        }
+
+        .emotion-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .emotion-btn {
+            padding: 4px 8px;
+            background: rgba(55, 65, 81, 0.8);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            border-radius: 6px;
+            color: #e5e7eb;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .emotion-btn:hover, .emotion-btn.active {
+            background: rgba(59, 130, 246, 0.4);
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+
+        .metrics-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            min-width: 130px;
+        }
+
+        .metric {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .control-panel {
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(75, 85, 99, 0.3);
+            height: fit-content;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voice-controls {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #6b7280;
+            color: #e5e7eb;
+        }
+
+        .voice-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #374151;
+            border-radius: 8px;
+            background: rgba(31, 41, 55, 0.8);
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #374151;
+            border-radius: 8px;
+            background: rgba(31, 41, 55, 0.8);
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .feature-btn {
+            padding: 10px 12px;
+            background: rgba(55, 65, 81, 0.6);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+            border-radius: 8px;
+            color: #e5e7eb;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(59, 130, 246, 0.3);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .robot-overlay, .animation-controls, .metrics-overlay {
+                position: relative;
+                max-width: none;
+                margin-bottom: 15px;
+            }
+        }
+
+        /* Spline hero card (matches splite demo layout) */
+        .spline-card {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: rgba(0,0,0,0.96);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .spline-row {
+            position: relative;
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .spline-left {
+            flex: 1;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .spline-left h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(180deg, #ffffff, #d1d5db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .spline-left p {
+            margin-top: 12px;
+            color: #d1d5db;
+            max-width: 560px;
+            line-height: 1.5;
+        }
+
+        .spline-right {
+            flex: 1;
+            position: relative;
+        }
+
+        #splineCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Spotlight hover effect */
+        .spotlight {
+            position: absolute;
+            pointer-events: none;
+            width: 240px;
+            height: 240px;
+            border-radius: 9999px;
+            filter: blur(24px);
+            background: radial-gradient(circle at center, rgba(250,250,250,0.9), rgba(229,229,229,0.6), rgba(212,212,212,0.3), transparent 80%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 1;
+        }
+
+        .spline-card:hover .spotlight {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🤖 ARIA - Lifelike AI Assistant</h1>
+            <p>Advanced Voice AI with Realistic Human Expressions & Body Language</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Spline-styled hero card -->
+            <div class="spline-card">
+                <div class="spotlight" id="spotlight"></div>
+                <div class="spline-row">
+                    <div class="spline-left">
+                        <h1>Interactive 3D</h1>
+                        <p>Bring your UI to life with beautiful 3D scenes. Create immersive experiences that capture attention and enhance your design.</p>
+                    </div>
+                    <div class="spline-right">
+                        <canvas id="splineCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Robot Container -->
+            <div class="robot-container" id="robotContainer">
+                <!-- Loading State -->
+                <div class="loading" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Initializing Lifelike AI Avatar...</p>
+                </div>
+
+                <!-- 3D Avatar Canvas -->
+                <canvas class="avatar-canvas" id="avatarCanvas" style="display: none;"></canvas>
+
+                <!-- Robot Overlay -->
+                <div class="robot-overlay" id="robotOverlay" style="display: none;">
+                    <div class="assistant-info">
+                        <div class="assistant-name" id="assistantName">
+                            ARIA
+                            <div class="emotion-indicator" id="emotionIndicator"></div>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #9ca3af;">Lifelike AI Research Assistant</div>
+                    </div>
+                    
+                    <div class="status-indicator">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="robotStatus">Ready</span>
+                    </div>
+
+                    <div class="conversation-display" id="conversationDisplay">
+                        <div style="text-align: center; color: #6b7280; padding: 10px;">
+                            Say "Hello" to see me come to life!
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button class="btn btn-outline" id="clearConversation" style="font-size: 0.8rem; padding: 6px 12px; flex: 1;">
+                            Clear Chat
+                        </button>
+                        <button class="btn btn-outline" id="downloadTranscript" style="font-size: 0.8rem; padding: 6px 12px; flex: 1;">
+                            📝 Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Animation Controls -->
+                <div class="animation-controls" id="animationControls" style="display: none;">
+                    <div class="animation-title">🎭 Current Emotion</div>
+                    <div class="emotion-controls">
+                        <button class="emotion-btn" onclick="setEmotion('happy')">😊 Happy</button>
+                        <button class="emotion-btn" onclick="setEmotion('curious')">🤔 Curious</button>
+                        <button class="emotion-btn" onclick="setEmotion('focused')">😐 Focused</button>
+                        <button class="emotion-btn" onclick="setEmotion('surprised')">😮 Surprised</button>
+                        <button class="emotion-btn active" onclick="setEmotion('neutral')">😌 Neutral</button>
+                    </div>
+                </div>
+
+                <!-- Metrics Overlay -->
+                <div class="metrics-overlay" id="metricsOverlay" style="display: none;">
+                    <div class="metric">
+                        <div class="metric-value" id="responseTime">0.8s</div>
+                        <div class="metric-label">Response</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="emotionState">Neutral</div>
+                        <div class="metric-label">Emotion</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="animationFPS">60fps</div>
+                        <div class="metric-label">Animation</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="conversations">0</div>
+                        <div class="metric-label">Exchanges</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <!-- Voice Character Selection -->
+                <div class="control-section">
+                    <h3 class="control-title">🎭 Avatar & Voice</h3>
+                    <select class="voice-select" id="voiceSelect">
+                        <option value="EXAVITQu4vr4xnSDxMaL">Sarah - Professional Female</option>
+                        <option value="21m00Tcm4TlvDq8ikWAM">Rachel - Warm & Friendly</option>
+                        <option value="AZnzlk1XvdvUeBnXmlld">Domi - Confident Female</option>
+                        <option value="CYw3kZ02Hs0563khs1Fj">Dave - Authoritative Male</option>
+                        <option value="FGY2WhTYpPnrIDTdsKH5">Laura - Conversational</option>
+                        <option value="GBv7mTt0atIp3Br8iCZE">George - Distinguished</option>
+                        <option value="N2lVS1w4EtoT3dr4eOWO">Callum - Professional Male</option>
+                    </select>
+                </div>
+
+                <!-- Voice Controls -->
+                <div class="control-section">
+                    <h3 class="control-title">🎤 Voice Interaction</h3>
+                    <div class="voice-controls">
+                        <button class="btn btn-primary" id="startConversation">
+                            🎤 Start Talking
+                        </button>
+                        <button class="btn btn-outline" id="stopSpeaking">
+                            🔇 Stop
+                        </button>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #9ca3af; line-height: 1.3;">
+                        Watch ARIA's realistic expressions and body language as you speak!
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="control-section">
+                    <h3 class="control-title">⚡ Quick Interactions</h3>
+                    <div class="features-grid">
+                        <button class="feature-btn" onclick="quickAsk('Hello ARIA!')">👋 Greet</button>
+                        <button class="feature-btn" onclick="quickAsk('What time is it?')">⏰ Time</button>
+                        <button class="feature-btn" onclick="quickAsk('How are you feeling?')">😊 Mood</button>
+                        <button class="feature-btn" onclick="quickAsk('Tell me a joke')">😄 Joke</button>
+                        <button class="feature-btn" onclick="quickAsk('Explain quantum physics')">🔬 Science</button>
+                        <button class="feature-btn" onclick="quickAsk('Show excitement')">🎉 Excited</button>
+                        <button class="feature-btn" onclick="quickAsk('Be curious about something')">🤔 Curious</button>
+                        <button class="feature-btn" onclick="quickAsk('Take notes for me')">📝 Notes</button>
+                    </div>
+                </div>
+
+                <!-- Text Input -->
+                <div class="control-section">
+                    <h3 class="control-title">💬 Text Chat</h3>
+                    <input type="text" 
+                           class="text-input" 
+                           id="textInput" 
+                           placeholder="Type your message to see ARIA react..."
+                           autocomplete="off">
+                    <button class="btn btn-primary" id="sendMessage" style="width: 100%;">
+                        Send & Watch Animation
+                    </button>
+                </div>
+
+                <!-- Animation Presets -->
+                <div class="control-section">
+                    <h3 class="control-title">🎬 Animation Presets</h3>
+                    <div class="features-grid">
+                        <button class="feature-btn" onclick="triggerAnimation('wave')">👋 Wave</button>
+                        <button class="feature-btn" onclick="triggerAnimation('nod')">✅ Nod</button>
+                        <button class="feature-btn" onclick="triggerAnimation('shake')">❌ Shake Head</button>
+                        <button class="feature-btn" onclick="triggerAnimation('think')">🤔 Think</button>
+                        <button class="feature-btn" onclick="triggerAnimation('point')">👉 Point</button>
+                        <button class="feature-btn" onclick="triggerAnimation('shrug')">🤷 Shrug</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript will be added in the next part -->
+    <script type="module" src="aria-lifelike.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+# Simplified Dockerfile for QEP-VLA Platform
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/app/src
+
+# Install system dependencies for OpenCV
+RUN apt-get update && apt-get install -y \
+    curl \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    libgomp1 \
+    libgthread-2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+COPY data/ ./data/
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash qepvla && \
+    chown -R qepvla:qepvla /app
+
+# Switch to non-root user
+USER qepvla
+
+# Expose port
+EXPOSE 8000
+
+# Start command
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

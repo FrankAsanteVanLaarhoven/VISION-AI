@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QEP-VLA Command Center - Dashboard (Redirecting...)</title>
+    <link rel="stylesheet" href="/ui/assets/css/quantum-theme.css">
+    <link rel="stylesheet" href="/ui/assets/css/components.css">
+    <link rel="stylesheet" href="/ui/assets/css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <script>
+        // Auto-redirect to enhanced dashboard
+        window.location.replace('/enhanced-dashboard.html');
+    </script>
+    <style>
+        /* Collapsible sidebar - minimal scoped styles */
+        .sidebar { width: 260px; transition: width 0.25s ease; overflow: hidden; }
+        .main-content { margin-left: 260px; transition: margin-left 0.25s ease; }
+        body.sidebar-collapsed .sidebar { width: 64px; }
+        body.sidebar-collapsed .main-content { margin-left: 64px; }
+        /* Hide text labels when collapsed */
+        body.sidebar-collapsed .sidebar .menu-text, 
+        body.sidebar-collapsed .sidebar .logo-text { display: none; }
+        body.sidebar-collapsed .sidebar .menu-link { justify-content: center; }
+        /* Toggle button */
+        .sidebar-toggle { 
+            border: 1px solid rgba(255,255,255,0.08); 
+            background: transparent; color: inherit; 
+            padding: 8px 10px; border-radius: 10px; cursor: pointer;
+            width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+        }
+        
+        /* PVLA Status Classes */
+        .status-online { color: #4ade80 !important; }
+        .status-warning { color: #facc15 !important; }
+        .status-error { color: #f87171 !important; }
+        .status-pending { color: #60a5fa !important; }
+        
+        .response-box .success { color: #4ade80; }
+        .response-box .warning { color: #facc15; }
+        .response-box .error { color: #f87171; }
+        .response-box .processing { color: #60a5fa; }
+        
+        /* Quick Access Section Styles */
+        .sidebar-section h4 {
+            font-weight: 600;
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        
+        .quick-access-menu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .quick-access-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .quick-access-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .quick-access-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+        
+        .quick-access-menu .menu-item {
+            margin-bottom: 2px;
+        }
+        
+        .quick-access-menu .menu-link {
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+        
+        .quick-access-menu .menu-icon {
+            font-size: 14px;
+        }
+        .sidebar-toggle:focus { outline: 2px solid rgba(14,165,233,0.6); outline-offset: 2px; }
+        /* Sidebar header layout */
+        .sidebar .sidebar-header { display: flex; align-items: center; gap: 8px; padding: 12px; }
+    </style>
+    <!-- Chart.js will be loaded after security system -->
+    <script src="/ui/web_dashboard/assets/js/chart-security.js"></script>
+    <script src="/ui/web_dashboard/assets/js/security-config.js"></script>
+    <script>
+        // Security readiness check with timeout
+        let securityCheckAttempts = 0;
+        const maxSecurityCheckAttempts = 50; // 2.5 seconds max
+
+        function checkSecurityReadiness() {
+            securityCheckAttempts++;
+
+            if (window.chartSecurity && window.chartSecurity.isInitialized) {
+                console.log('🔒 Security System: READY - All systems operational');
+                // Start other scripts now that security is ready
+                initializeDashboard();
+                return true;
+            } else if (securityCheckAttempts >= maxSecurityCheckAttempts) {
+                console.warn('🔒 Security System: Timeout - Initializing dashboard with fallback');
+                // Force initialize even if security system isn't ready
+                initializeDashboard();
+                return false;
+            } else {
+                console.log(`🔒 Security System: Initializing... (${securityCheckAttempts}/${maxSecurityCheckAttempts})`);
+                setTimeout(checkSecurityReadiness, 50);
+                return false;
+            }
+        }
+
+        function initializeDashboard() {
+            console.log('🚀 Initializing QEP-VLA Dashboard...');
+
+            // Load Chart.js after security system is ready
+            if (!window.Chart) {
+                const chartjsScript = document.createElement('script');
+                chartjsScript.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js';
+                chartjsScript.onload = function() {
+                    console.log('📊 Chart.js loaded successfully');
+                    // Dashboard will be initialized by the DOMContentLoaded event
+                };
+                chartjsScript.onerror = function() {
+                    console.error('❌ Failed to load Chart.js');
+                };
+                document.head.appendChild(chartjsScript);
+            }
+        }
+
+        // Start checking security readiness
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                checkSecurityReadiness();
+            });
+        } else {
+            checkSecurityReadiness();
+        }
+    </script>
+    <script src="/ui/web_dashboard/assets/js/security-test.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script>
+        // Load theme switcher component
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadScript = async (src) => {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            };
+            
+            const initThemeSwitcher = async () => {
+                try {
+                    await loadScript('components/ui/theme-switcher.js');
+                    console.log('Theme switcher loaded');
+                    
+                    // Initialize theme switcher
+                    if (window.ThemeSwitcher && window.ReactDOM) {
+                        const container = document.getElementById('theme-switcher-container');
+                        if (container) {
+                            const root = ReactDOM.createRoot(container);
+                            root.render(React.createElement(window.ThemeSwitcher));
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading theme switcher:', error);
+                }
+            };
+            
+            initThemeSwitcher();
+        });
+    </script>
+</head>
+<body class="dashboard-body" style="background: var(--background); color: var(--foreground);">
+    <script>
+        // Apply saved theme on initial load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const themeToApply = savedTheme === 'system' ? systemTheme : savedTheme;
+            document.documentElement.classList.add(`${themeToApply}-theme`);
+            
+            // Apply theme colors
+            if (themeToApply === 'light') {
+                document.body.style.background = '#ffffff';
+                document.body.style.color = '#000000';
+            } else {
+                document.body.style.background = '#000000';
+                document.body.style.color = '#ffffff';
+            }
+        })();
+    </script>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" style="background: var(--card); border-right: 1px solid var(--border);">
+        <div class="sidebar-header">
+            <button class="sidebar-toggle" id="sidebarToggleSide" aria-pressed="false" aria-label="Toggle sidebar" title="Toggle sidebar" style="color: var(--foreground);">☰</button>
+            <div class="quantum-logo">
+                <span class="quantum-symbol" style="color: var(--foreground);">⚛</span>
+                <span class="logo-text" style="color: var(--foreground);">QEP-VLA</span>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="/ui/web_dashboard/command-center.html" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">🧭</span>
+                    <span class="menu-text">Command Center</span>
+                </a>
+            </li>
+            <li class="menu-item active">
+                <a href="#overview" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-text">Overview</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#navigation" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">🗺️</span>
+                    <span class="menu-text">Navigation</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#privacy" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">🔒</span>
+                    <span class="menu-text">Privacy</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#monitoring" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">📡</span>
+                    <span class="menu-text">Monitoring</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#analytics" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">📈</span>
+                    <span class="menu-text">Analytics</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#fleet" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">🚗</span>
+                    <span class="menu-text">Fleet</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#robotics" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">🤖</span>
+                    <span class="menu-text">Robotics & PVLA</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#drones" class="menu-link" style="color: #ffffff;">
+                    <span class="menu-icon">🚁</span>
+                    <span class="menu-text">Drones</span>
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Quick Access Section -->
+        <div class="sidebar-section" style="padding: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <h4 style="color: #ffffff; margin-bottom: 8px; font-size: 14px;">Quick Access</h4>
+            <ul class="sidebar-menu quick-access-menu" style="margin-top: 8px;">
+                <li class="menu-item">
+                    <a href="/ui/web_dashboard/aria-advanced.html" class="menu-link" style="color: #ffffff;" target="_blank">
+                        <span class="menu-icon">📄</span>
+                        <span class="menu-text">Aria Advanced</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/ui/web_dashboard/command-center.html" class="menu-link" style="color: #ffffff;" target="_blank">
+                        <span class="menu-icon">📄</span>
+                        <span class="menu-text">Command Center</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/enhanced-dashboard.html" class="menu-link" style="color: #ffffff;">
+                        <span class="menu-icon">📄</span>
+                        <span class="menu-text">Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="sidebar-footer" style="border-top: 1px solid rgba(255,255,255,0.1);">
+            <div class="system-status" style="color: #ffffff;">
+                <div class="status-indicator online" style="background: #ffffff;"></div>
+                <span>System Online</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" style="background: var(--background);">
+        <!-- Top Header -->
+        <header class="top-header" style="background: var(--card); border-bottom: 1px solid var(--border);">
+            <div class="header-left">
+                <h1 class="page-title" style="color: var(--foreground);">Command Center</h1>
+                <p class="page-subtitle" style="color: var(--foreground);">Real-time QEP-VLA Platform monitoring</p>
+            </div>
+            <div class="header-right">
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <span class="stat-label" style="color: var(--foreground);">Active Vehicles</span>
+                        <span class="stat-value" style="color: var(--foreground);">25</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" style="color: var(--foreground);">System Health</span>
+                        <span class="stat-value healthy" style="color: var(--foreground);">98%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" style="color: var(--foreground);">Privacy Level</span>
+                        <span class="stat-value" style="color: var(--foreground);">ε=0.1</span>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <div class="security-status" style="color: var(--foreground);">
+                        <span class="security-indicator active" title="Chart Security Active">🔒</span>
+                        <span class="security-text">Secure</span>
+                    </div>
+                    <div id="theme-switcher-container" style="margin: 0 15px;"></div>
+                    <button class="user-button" style="background: var(--secondary); color: var(--foreground); border: 1px solid var(--border);">
+                        <span class="user-avatar">👤</span>
+                        <span>Admin</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content" style="background: var(--background);">
+            <!-- Overview Section -->
+            <section id="overview" class="dashboard-section active">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">System Overview</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-secondary" onclick="refreshData()" style="background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2);">Refresh</button>
+                        <button class="btn btn-primary" onclick="toggleAutoRefresh()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Auto-refresh</button>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card primary" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="metric-header">
+                            <h3 style="color: #ffffff;">Navigation Accuracy</h3>
+                            <span class="metric-icon">🎯</span>
+                        </div>
+                        <div class="metric-value" style="color: #ffffff;">97.3%</div>
+                        <div class="metric-trend positive" style="color: #ffffff;">+0.3% vs yesterday</div>
+                    </div>
+                    
+                    <div class="metric-card success" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="metric-header">
+                            <h3 style="color: #ffffff;">Processing Latency</h3>
+                            <span class="metric-icon">⚡</span>
+                        </div>
+                        <div class="metric-value" style="color: #ffffff;">47ms</div>
+                        <div class="metric-trend positive" style="color: #ffffff;">Sub-50ms ✅</div>
+                    </div>
+                    
+                    <div class="metric-card warning" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="metric-header">
+                            <h3 style="color: #ffffff;">Privacy Budget</h3>
+                            <span class="metric-icon">🔒</span>
+                        </div>
+                        <div class="metric-value" style="color: #ffffff;">ε=0.1</div>
+                        <div class="metric-trend positive" style="color: #ffffff;">GDPR Compliant ✅</div>
+                    </div>
+                    
+                    <div class="metric-card info" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="metric-header">
+                            <h3 style="color: #ffffff;">Quantum Enhancement</h3>
+                            <span class="metric-icon">🔬</span>
+                        </div>
+                        <div class="metric-value" style="color: #ffffff;">2.3x</div>
+                        <div class="metric-trend positive" style="color: #ffffff;">Active</div>
+                    </div>
+                </div>
+
+                <!-- Real-time Charts -->
+                <div class="charts-row">
+                    <div class="chart-container" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color: #ffffff;">Navigation Performance</h3>
+                        <canvas id="navigationChart"></canvas>
+                    </div>
+                    <div class="chart-container" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color: #ffffff;">Privacy Compliance</h3>
+                        <canvas id="privacyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="status-grid">
+                    <div class="status-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color: #ffffff;">Core Systems</h3>
+                        <div class="status-list">
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>Quantum Privacy Transform</span>
+                            </div>
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>Federated Trainer</span>
+                            </div>
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>Edge Inference Engine</span>
+                            </div>
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>Navigation Engine</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color: #ffffff;">Infrastructure</h3>
+                        <div class="status-list">
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>PostgreSQL Database</span>
+                            </div>
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>Redis Cache</span>
+                            </div>
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>Blockchain Validation</span>
+                            </div>
+                            <div class="status-item online" style="color: #ffffff;">
+                                <span class="status-dot" style="background: #ffffff;"></span>
+                                <span>Monitoring Stack</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Section -->
+            <section id="navigation" class="dashboard-section">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">Real-time Navigation</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-success" onclick="startNavigation()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Start Navigation</button>
+                        <button class="btn btn-danger" onclick="emergencyStop()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Emergency Stop</button>
+                        <a href="command-center.html" class="btn btn-primary" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Open Command Center</a>
+                    </div>
+                </div>
+
+                <div class="navigation-container">
+                    <div class="navigation-view">
+                        <div class="3d-navigation" id="3dNavigation">
+                            <!-- Live Navigation Map will be rendered here -->
+                        </div>
+                        <div class="navigation-controls">
+                            <div class="control-group">
+                                <label>Target Location</label>
+                                <input type="text" id="targetLocation" placeholder="Enter destination" class="form-input">
+                            </div>
+                            <div class="control-group">
+                                <label>Navigation Mode</label>
+                                <select id="navigationMode" class="form-select">
+                                    <option value="autonomous">Autonomous</option>
+                                    <option value="assisted">Assisted</option>
+                                    <option value="manual">Manual Override</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Privacy Level</label>
+                                <select id="privacyLevel" class="form-select">
+                                    <option value="0.01">Maximum (ε=0.01)</option>
+                                    <option value="0.1" selected>High (ε=0.1)</option>
+                                    <option value="0.5">Medium (ε=0.5)</option>
+                                    <option value="1.0">Low (ε=1.0)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Privacy Section -->
+            <section id="privacy" class="dashboard-section">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">Privacy & Security Center</h2>
+                </div>
+
+                <div class="privacy-overview">
+                    <div class="privacy-gauge">
+                        <canvas id="privacyGauge" width="300" height="300"></canvas>
+                        <div class="gauge-label">Privacy Compliance: 99.8%</div>
+                    </div>
+                    
+                    <div class="privacy-metrics">
+                        <div class="privacy-metric">
+                            <h4>Differential Privacy</h4>
+                            <div class="metric-bar">
+                                <div class="bar-fill" style="width: 95%"></div>
+                                <span>95%</span>
+                            </div>
+                        </div>
+                        <div class="privacy-metric">
+                            <h4>Data Encryption</h4>
+                            <div class="metric-bar">
+                                <div class="bar-fill" style="width: 100%"></div>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                        <div class="privacy-metric">
+                            <h4>Consent Management</h4>
+                            <div class="metric-bar">
+                                <div class="bar-fill" style="width: 98%"></div>
+                                <span>98%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monitoring Section -->
+            <section id="monitoring" class="dashboard-section">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">System Monitoring</h2>
+                </div>
+
+                <div class="monitoring-grid">
+                    <div class="monitor-card">
+                        <h3>Performance Metrics</h3>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+
+                    <div class="monitor-card">
+                        <h3>Resource Usage</h3>
+                        <canvas id="resourceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="dashboard-section">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">Performance Analytics</h2>
+                </div>
+
+                <div class="analytics-container">
+                    <div class="analytics-chart">
+                        <canvas id="analyticsChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fleet Section -->
+            <section id="fleet" class="dashboard-section">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">Fleet Management</h2>
+                </div>
+
+                <div class="fleet-overview">
+                    <div class="fleet-stats">
+                        <div class="fleet-stat">
+                            <span class="stat-number">25</span>
+                            <span class="stat-label">Total Vehicles</span>
+                        </div>
+                        <div class="fleet-stat">
+                            <span class="stat-number">23</span>
+                            <span class="stat-label">Online</span>
+                        </div>
+                        <div class="fleet-stat">
+                            <span class="stat-number">2</span>
+                            <span class="stat-label">Maintenance</span>
+                        </div>
+                    </div>
+                    
+                    <div class="fleet-table">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Vehicle ID</th>
+                                    <th>Status</th>
+                                    <th>Location</th>
+                                    <th>Accuracy</th>
+                                    <th>Latency</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fleetTableBody">
+                                <!-- Fleet data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Robotics & PVLA Navigation Section -->
+            <section id="robotics" class="dashboard-section">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">Robotics & PVLA Navigation System</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-success" onclick="startRobotMission()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Start Mission</button>
+                        <button class="btn btn-danger" onclick="stopRobotMission()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Stop</button>
+                        <button class="btn btn-primary" onclick="initializePVLASystem()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Initialize PVLA</button>
+                    </div>
+                </div>
+
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>Robot Fleet</h3>
+                        <div class="status-list" id="robotStatusList">
+                            <!-- Robot statuses populated here -->
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Mission Telemetry</h3>
+                        <canvas id="robotTelemetryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- PVLA Navigation System -->
+                <div class="section-subheader">
+                    <h3 style="color: var(--foreground);">PVLA Navigation System</h3>
+                </div>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>PVLA System Status</h3>
+                        <div class="status-list" id="pvlaSystemStatus">
+                            <div class="status-item"><span class="status-dot"></span><span>System: <span id="pvla-system-state">Initializing</span></span></div>
+                            <div class="status-item"><span class="status-dot"></span><span>Vision Algorithm: <span id="pvla-vision-status">Standby</span></span></div>
+                            <div class="status-item"><span class="status-dot"></span><span>Language Algorithm: <span id="pvla-language-status">Standby</span></span></div>
+                            <div class="status-item"><span class="status-dot"></span><span>Action Algorithm: <span id="pvla-action-status">Standby</span></span></div>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Navigation Controls</h3>
+                        <div class="control-panel">
+                            <div class="control-group">
+                                <label>Navigation Command</label>
+                                <input type="text" id="pvlaCommand" class="form-input" placeholder="Enter navigation command...">
+                            </div>
+                            <div class="control-group">
+                                <button class="btn btn-primary" onclick="sendPVLACommand()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Send Command</button>
+                            </div>
+                            <div class="control-group">
+                                <label>Response:</label>
+                                <div id="pvlaResponse" class="response-box" style="min-height: 60px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
+                                    Waiting for command...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-grid">
+                    <div class="status-card" style="grid-column: span 2;">
+                        <h3>PVLA Performance Metrics</h3>
+                        <canvas id="pvlaPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Drones Section -->
+            <section id="drones" class="dashboard-section">
+                <div class="section-header">
+                    <h2 style="color: var(--foreground);">Drone Operations</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-success" onclick="launchDrone()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Launch</button>
+                        <button class="btn btn-warning" onclick="returnToHome()" style="background: #ffffff; color: #000000; border: 1px solid #ffffff;">Return Home</button>
+                    </div>
+                </div>
+
+                <div class="navigation-container">
+                    <div class="navigation-view">
+                        <div id="droneMap" class="navigation-map"></div>
+                    </div>
+                    <div class="navigation-controls">
+                        <div class="control-group">
+                            <label>Altitude (m)</label>
+                            <input type="number" id="droneAltitude" class="form-input" value="120">
+                        </div>
+                        <div class="control-group">
+                            <label>Speed (m/s)</label>
+                            <input type="number" id="droneSpeed" class="form-input" value="12">
+                        </div>
+                        <div class="control-group">
+                            <label>Privacy Level</label>
+                            <select id="dronePrivacy" class="form-select">
+                                <option value="0.01">Maximum (ε=0.01)</option>
+                                <option value="0.1" selected>High (ε=0.1)</option>
+                                <option value="0.5">Medium (ε=0.5)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/ui/web_dashboard/assets/js/quantum-viz.js"></script>
+    <script src="/ui/web_dashboard/assets/js/realtime-charts.js"></script>
+    <script src="/ui/web_dashboard/assets/js/3d-navigation.js"></script>
+    <script src="/ui/web_dashboard/assets/js/privacy-controls.js"></script>
+    <script src="/ui/web_dashboard/assets/js/monitoring-test.js"></script>
+    <script>
+        // Dashboard functionality
+        let autoRefreshInterval;
+        let currentSection = 'overview';
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            initializeNavigation();
+            loadFleetData();
+            startAutoRefresh();
+            // Restore sidebar collapsed state
+            try {
+                const collapsed = localStorage.getItem('qepvla-sidebar-collapsed') === 'true';
+                if (collapsed) {
+                    document.body.classList.add('sidebar-collapsed');
+                    const t = document.getElementById('sidebarToggle');
+                    if (t) t.setAttribute('aria-pressed', 'true');
+                }
+            } catch (_) {}
+            
+            // Security system handles all resize events automatically
+            console.log('🔒 Chart Security: Resize protection active');
+        });
+
+        // Navigation
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href') || '';
+                // Only intercept in-page hash links; allow normal navigation for real pages
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    const targetSection = href.substring(1);
+                    showSection(targetSection);
+                }
+            });
+        });
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all menu items
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show target section (guard for missing IDs)
+            const sectionEl = document.getElementById(sectionId);
+            if (sectionEl) {
+                sectionEl.classList.add('active');
+            }
+            
+            // Update menu active state (guard for missing links)
+            const linkEl = document.querySelector(`[href="#${sectionId}"]`);
+            if (linkEl && linkEl.parentElement) {
+                linkEl.parentElement.classList.add('active');
+            }
+            
+            currentSection = sectionId;
+        }
+
+        function initializeCharts() {
+            try {
+                // Wait for DOM to be fully ready and handle canvas sizing
+                setTimeout(() => {
+                    this.createCharts();
+                }, 100);
+                return;
+            } catch (error) {
+                console.error('Error in chart initialization:', error);
+            }
+        }
+
+        function createCharts() {
+            try {
+                // Wait for security system to be ready
+                if (!window.chartSecurity || !window.chartSecurity.isInitialized) {
+                    console.log('🔒 Dashboard: Waiting for security system...');
+                    setTimeout(() => this.createCharts(), 100);
+                    return;
+                }
+                // Also ensure Chart is available
+                if (!window.Chart) {
+                    setTimeout(() => this.createCharts(), 100);
+                    return;
+                }
+
+                // Navigation Performance Chart
+                const navCtx = document.getElementById('navigationChart');
+                if (navCtx && navCtx.getContext) {
+                    // Security system will handle canvas sizing automatically
+                    const navChart = new Chart(navCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                            datasets: [{
+                                label: 'Accuracy %',
+                                data: [96.8, 97.1, 97.5, 97.3, 97.2, 97.4],
+                                borderColor: '#ffffff',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    min: 95,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Register chart with security system
+                    window.chartSecurity.registerChart(navCtx, navChart);
+                }
+
+                // Privacy Compliance Chart
+                const privacyCtx = document.getElementById('privacyChart');
+                if (privacyCtx && privacyCtx.getContext) {
+                    const privacyChart = new Chart(privacyCtx.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Compliant', 'Minor Issues', 'Violations'],
+                            datasets: [{
+                                data: [85, 12, 3],
+                                backgroundColor: ['#ffffff', '#ffffff', '#ffffff']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Register chart with security system
+                    window.chartSecurity.registerChart(privacyCtx, privacyChart);
+                }
+
+                // Performance Metrics Chart
+                const perfCtx = document.getElementById('performanceChart');
+                if (perfCtx && perfCtx.getContext) {
+                    const perfChart = new Chart(perfCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['CPU', 'Memory', 'GPU', 'Network'],
+                            datasets: [{
+                                label: 'Usage %',
+                                data: [45, 62, 38, 28],
+                                backgroundColor: ['#ffffff', '#ffffff', '#ffffff', '#ffffff']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Register chart with security system
+                    window.chartSecurity.registerChart(perfCtx, perfChart);
+                }
+
+                // Resource Usage Chart
+                const resCtx = document.getElementById('resourceChart');
+                if (resCtx && resCtx.getContext) {
+                    const resChart = new Chart(resCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                            datasets: [{
+                                label: 'Memory Usage',
+                                data: [45, 48, 52, 49, 51, 47],
+                                borderColor: '#ffffff',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Register chart with security system
+                    window.chartSecurity.registerChart(resCtx, resChart);
+                }
+
+                // Analytics Chart
+                const analyticsCtx = document.getElementById('analyticsChart');
+                if (analyticsCtx && analyticsCtx.getContext) {
+                    const analyticsChart = new Chart(analyticsCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'System Performance',
+                                data: [92, 94, 96, 95, 97, 98],
+                                borderColor: '#ffffff',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    min: 90,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Register chart with security system
+                    window.chartSecurity.registerChart(analyticsCtx, analyticsChart);
+                }
+
+            } catch (error) {
+                console.error('Error creating charts:', error);
+            }
+        }
+
+        function initializeNavigation() {
+            // Initialize 3D navigation view
+            const container = document.getElementById('3dNavigation');
+            container.innerHTML = '<div class="navigation-placeholder">3D Navigation View</div>';
+        }
+
+        function loadFleetData() {
+            const fleetData = [
+                { id: 'QEP-001', status: 'Online', location: 'Zone A', accuracy: '97.2%', latency: '45ms' },
+                { id: 'QEP-002', status: 'Online', location: 'Zone B', accuracy: '96.8%', latency: '48ms' },
+                { id: 'QEP-003', status: 'Maintenance', location: 'Garage', accuracy: 'N/A', latency: 'N/A' },
+                { id: 'QEP-004', status: 'Online', location: 'Zone C', accuracy: '97.5%', latency: '42ms' },
+                { id: 'QEP-005', status: 'Online', location: 'Zone A', accuracy: '96.9%', latency: '51ms' }
+            ];
+
+            const tbody = document.getElementById('fleetTableBody');
+            tbody.innerHTML = '';
+
+            fleetData.forEach(vehicle => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${vehicle.id}</td>
+                    <td><span class="status-badge ${vehicle.status.toLowerCase()}">${vehicle.status}</span></td>
+                    <td>${vehicle.location}</td>
+                    <td>${vehicle.accuracy}</td>
+                    <td>${vehicle.latency}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary">View</button>
+                        <button class="btn btn-sm btn-primary">Control</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(() => {
+                if (currentSection === 'overview') {
+                    refreshData();
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function toggleAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                event.target.textContent = 'Start Auto-refresh';
+            } else {
+                startAutoRefresh();
+                event.target.textContent = 'Stop Auto-refresh';
+            }
+        }
+
+        function refreshData() {
+            // Simulate data refresh
+            console.log('Refreshing data...');
+            // In a real implementation, this would fetch new data from the API
+        }
+
+        // Robotics & Drones demo functions (stubs; can be wired to API later)
+        function startRobotMission() {
+            const list = document.getElementById('robotStatusList');
+            if (list) {
+                list.innerHTML = `
+                    <div class="status-item online"><span class="status-dot"></span><span>Robot R-001: Active</span></div>
+                    <div class="status-item online"><span class="status-dot"></span><span>Robot R-002: Active</span></div>
+                    <div class="status-item warning"><span class="status-dot"></span><span>Robot R-003: Low Battery</span></div>
+                `;
+            }
+            
+            // If PVLA is initialized, start it too
+            if (window.pvlaInitialized) {
+                updatePVLAStatus('ready', 'active', 'active', 'active');
+            }
+            
+            alert('Robot mission started');
+        }
+        
+        function stopRobotMission() { 
+            // If PVLA is initialized, stop it too
+            if (window.pvlaInitialized) {
+                updatePVLAStatus('maintenance', 'standby', 'standby', 'standby');
+            }
+            
+            alert('Robot mission stopped'); 
+        }
+        
+        function launchDrone() { alert('Drone launched'); }
+        function returnToHome() { alert('Drone returning to home'); }
+        
+        // File navigation functions - kept for backward compatibility
+        function showScriptContent(filename) {
+            // Instead of showing in a modal, navigate to the file in a new tab
+            window.open(filename, '_blank');
+        }
+        
+        function showJsContent(filename) {
+            // Reuse the same function for JS files
+            showScriptContent(filename);
+        }
+        
+        // PVLA Navigation System Functions
+        window.pvlaInitialized = false;
+        let pvlaPerformanceChart = null;
+        
+        function initializePVLASystem() {
+            // Update system status
+            updatePVLAStatus('initializing', 'initializing', 'initializing', 'initializing');
+            
+            // Simulate initialization process
+            setTimeout(() => {
+                updatePVLAStatus('ready', 'standby', 'standby', 'standby');
+                window.pvlaInitialized = true;
+                
+                // Initialize performance chart
+                initializePVLAPerformanceChart();
+                
+                // Update response box
+                document.getElementById('pvlaResponse').innerHTML = 'PVLA Navigation System initialized successfully. Ready for commands.';
+                
+                alert('PVLA Navigation System initialized successfully');
+            }, 1500);
+        }
+        
+        function updatePVLAStatus(systemState, visionStatus, languageStatus, actionStatus) {
+            // Update status elements with appropriate classes
+            const systemElement = document.getElementById('pvla-system-state');
+            const visionElement = document.getElementById('pvla-vision-status');
+            const languageElement = document.getElementById('pvla-language-status');
+            const actionElement = document.getElementById('pvla-action-status');
+            
+            if (systemElement) {
+                systemElement.textContent = systemState;
+                systemElement.className = getStatusClass(systemState);
+            }
+            
+            if (visionElement) {
+                visionElement.textContent = visionStatus;
+                visionElement.className = getStatusClass(visionStatus);
+            }
+            
+            if (languageElement) {
+                languageElement.textContent = languageStatus;
+                languageElement.className = getStatusClass(languageStatus);
+            }
+            
+            if (actionElement) {
+                actionElement.textContent = actionStatus;
+                actionElement.className = getStatusClass(actionStatus);
+            }
+            
+            // Update parent status items
+            updateStatusItemClasses();
+        }
+        
+        function getStatusClass(status) {
+            switch (status.toLowerCase()) {
+                case 'active':
+                case 'ready':
+                    return 'status-online';
+                case 'initializing':
+                case 'standby':
+                    return 'status-pending';
+                case 'error':
+                    return 'status-error';
+                case 'maintenance':
+                    return 'status-warning';
+                default:
+                    return '';
+            }
+        }
+        
+        function updateStatusItemClasses() {
+            const statusItems = document.querySelectorAll('#pvlaSystemStatus .status-item');
+            statusItems.forEach(item => {
+                const statusSpan = item.querySelector('span:last-child span');
+                if (statusSpan) {
+                    // Remove all status classes
+                    item.classList.remove('online', 'warning', 'error', 'pending');
+                    
+                    // Add appropriate class based on status text
+                    const status = statusSpan.textContent.toLowerCase();
+                    if (status === 'active' || status === 'ready') {
+                        item.classList.add('online');
+                    } else if (status === 'standby' || status === 'initializing') {
+                        item.classList.add('pending');
+                    } else if (status === 'error') {
+                        item.classList.add('error');
+                    } else if (status === 'maintenance') {
+                        item.classList.add('warning');
+                    }
+                }
+            });
+        }
+        
+        function sendPVLACommand() {
+            if (!window.pvlaInitialized) {
+                alert('Please initialize the PVLA Navigation System first');
+                return;
+            }
+            
+            const commandInput = document.getElementById('pvlaCommand');
+            const responseBox = document.getElementById('pvlaResponse');
+            
+            if (!commandInput || !responseBox) return;
+            
+            const command = commandInput.value.trim();
+            if (!command) {
+                alert('Please enter a navigation command');
+                return;
+            }
+            
+            // Update status to processing
+            updatePVLAStatus('processing', 'active', 'active', 'active');
+            responseBox.innerHTML = `<div class="processing">Processing command: "${command}"...</div>`;
+            
+            // Simulate PVLA processing
+            setTimeout(() => {
+                // Process command using the language algorithm
+                const response = processPVLACommand(command);
+                
+                // Update response box
+                responseBox.innerHTML = response;
+                
+                // Update status back to ready
+                updatePVLAStatus('ready', 'active', 'active', 'active');
+                
+                // Update performance chart with new data
+                updatePVLAPerformanceChart();
+            }, 1000);
+        }
+        
+        function processPVLACommand(command) {
+            // Simple command processor that simulates PVLA language understanding
+            const commandLower = command.toLowerCase();
+            
+            // Navigation commands
+            if (commandLower.includes('move') || commandLower.includes('go')) {
+                if (commandLower.includes('forward')) {
+                    return `<div class="success">Command processed: Moving forward.<br>Action selected: FORWARD<br>Confidence: 0.94<br>Processing time: 42ms</div>`;
+                } else if (commandLower.includes('backward') || commandLower.includes('back')) {
+                    return `<div class="success">Command processed: Moving backward.<br>Action selected: BACKWARD<br>Confidence: 0.91<br>Processing time: 38ms</div>`;
+                } else if (commandLower.includes('left')) {
+                    return `<div class="success">Command processed: Turning left.<br>Action selected: TURN_LEFT<br>Confidence: 0.89<br>Processing time: 45ms</div>`;
+                } else if (commandLower.includes('right')) {
+                    return `<div class="success">Command processed: Turning right.<br>Action selected: TURN_RIGHT<br>Confidence: 0.92<br>Processing time: 41ms</div>`;
+                }
+            }
+            
+            // Stop command
+            if (commandLower.includes('stop') || commandLower.includes('halt')) {
+                return `<div class="warning">Command processed: Emergency stop.<br>Action selected: STOP<br>Confidence: 0.98<br>Processing time: 36ms</div>`;
+            }
+            
+            // Speed commands
+            if (commandLower.includes('faster') || commandLower.includes('speed up')) {
+                return `<div class="success">Command processed: Increasing speed.<br>Action selected: ACCELERATE<br>Confidence: 0.87<br>Processing time: 44ms</div>`;
+            }
+            
+            if (commandLower.includes('slower') || commandLower.includes('slow down')) {
+                return `<div class="success">Command processed: Decreasing speed.<br>Action selected: DECELERATE<br>Confidence: 0.85<br>Processing time: 47ms</div>`;
+            }
+            
+            // Obstacle avoidance
+            if (commandLower.includes('avoid') || commandLower.includes('dodge')) {
+                return `<div class="success">Command processed: Avoiding obstacles.<br>Action selected: AVOID_OBSTACLE<br>Confidence: 0.93<br>Processing time: 52ms</div>`;
+            }
+            
+            // Follow path
+            if (commandLower.includes('follow') || commandLower.includes('path')) {
+                return `<div class="success">Command processed: Following path.<br>Action selected: FOLLOW_PATH<br>Confidence: 0.90<br>Processing time: 49ms</div>`;
+            }
+            
+            // Unknown command
+            return `<div class="error">Unable to process command: "${command}"<br>No matching action found.<br>Confidence: 0.32<br>Processing time: 56ms</div>`;
+        }
+        
+        function initializePVLAPerformanceChart() {
+            const ctx = document.getElementById('pvlaPerformanceChart');
+            if (!ctx) return;
+            
+            // Destroy existing chart if it exists
+            if (pvlaPerformanceChart) {
+                pvlaPerformanceChart.destroy();
+            }
+            
+            // Create new chart
+            pvlaPerformanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Initial'],
+                    datasets: [
+                        {
+                            label: 'Processing Time (ms)',
+                            data: [45],
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'Confidence Score',
+                            data: [0.85],
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            tension: 0.1,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updatePVLAPerformanceChart() {
+            if (!pvlaPerformanceChart) return;
+            
+            // Generate random performance data
+            const processingTime = Math.floor(Math.random() * 20) + 35; // 35-55ms
+            const confidenceScore = (Math.random() * 0.2) + 0.75; // 0.75-0.95
+            
+            // Add new data point
+            const labels = pvlaPerformanceChart.data.labels;
+            const nextLabel = labels.length > 0 ? (parseInt(labels[labels.length - 1]) + 1).toString() : '1';
+            
+            pvlaPerformanceChart.data.labels.push(nextLabel);
+            pvlaPerformanceChart.data.datasets[0].data.push(processingTime);
+            pvlaPerformanceChart.data.datasets[1].data.push(confidenceScore);
+            
+            // Limit to 10 data points
+            if (pvlaPerformanceChart.data.labels.length > 10) {
+                pvlaPerformanceChart.data.labels.shift();
+                pvlaPerformanceChart.data.datasets[0].data.shift();
+                pvlaPerformanceChart.data.datasets[1].data.shift();
+            }
+            
+            // Update chart
+            pvlaPerformanceChart.update();
+        }
+
+        // Sidebar toggle behavior
+        (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggles = [
+                    document.getElementById('sidebarToggle'),
+                    document.getElementById('sidebarToggleSide')
+                ].filter(Boolean);
+                toggles.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const collapsed = document.body.classList.toggle('sidebar-collapsed');
+                        try { localStorage.setItem('qepvla-sidebar-collapsed', String(collapsed)); } catch (_) {}
+                        toggles.forEach(b => b.setAttribute('aria-pressed', collapsed ? 'true' : 'false'));
+                    });
+                });
+            });
+        })();
+
+        async function startNavigation() {
+            try {
+                const command = 'Navigate to parking garage';
+                const requestData = {
+                    camera_data: Array(32).fill().map(() => Array(32).fill().map(() => [0.5,0.5,0.5])),
+                    lidar_data: Array(256).fill().map(() => [Math.random(),Math.random(),Math.random()]),
+                    imu_data: [0.1,0.2,0.3,0.4,0.5,0.6],
+                    language_command: command,
+                    privacy_level: 'high',
+                    quantum_enhanced: true
+                };
+                const res = await fetch('http://localhost:8000/api/v1/navigate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+                const data = await res.json();
+                console.log('Navigate response', data);
+
+                // Update overview charts with latest values where present
+                if (window.Chart) {
+                    const navCtx = document.getElementById('navigationChart');
+                    const navChart = navCtx ? Chart.getChart(navCtx) : null;
+                    if (navChart && data?.confidence_score) {
+                        const label = new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit'});
+                        navChart.data.labels.push(label);
+                        navChart.data.datasets[0].data.push(Math.min(100, data.confidence_score * 100));
+                        if (navChart.data.labels.length > 20) { navChart.data.labels.shift(); navChart.data.datasets[0].data.shift(); }
+                        try { navChart.update('none'); } catch(_) {}
+                    }
+                }
+
+                alert('Navigation command sent.');
+            } catch (e) {
+                console.error('Navigation error', e);
+                alert('Failed to start navigation');
+            }
+        }
+
+        function emergencyStop() {
+            if (confirm('Are you sure you want to perform an emergency stop?')) {
+                alert('Emergency stop activated!');
+            }
+        }
+    </script>
+</body>
+</html>

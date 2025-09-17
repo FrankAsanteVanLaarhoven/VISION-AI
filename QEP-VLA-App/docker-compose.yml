@@ -1,0 +1,91 @@
+services:
+  qep-vla-api:
+    image: qep-vla-simple:latest
+    container_name: qep-vla-api
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_URL=postgresql://qepvla:qepvla123@postgres:5432/qepvla
+      - REDIS_URL=redis://redis:6379
+      - QEP_VLA_ENV=development
+      - DEBUG=true
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - qep-vla-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: qep-vla-postgres
+    environment:
+      POSTGRES_DB: qepvla
+      POSTGRES_USER: qepvla
+      POSTGRES_PASSWORD: qepvla123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - qep-vla-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: qep-vla-redis
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+    networks:
+      - qep-vla-network
+
+  ganache:
+    image: trufflesuite/ganache:latest
+    container_name: qep-vla-ganache
+    ports:
+      - "8545:8545"
+    command: ["--deterministic", "--accounts", "10", "--defaultBalanceEther", "1000"]
+    restart: unless-stopped
+    networks:
+      - qep-vla-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: qep-vla-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./deploy/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - qep-vla-network
+
+  monitoring:
+    image: grafana/grafana:latest
+    container_name: qep-vla-monitoring
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - qep-vla-network
+
+volumes:
+  postgres_data:
+  grafana_data:
+
+networks:
+  qep-vla-network:
+    driver: bridge

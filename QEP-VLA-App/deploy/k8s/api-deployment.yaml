@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qep-vla-api
+  labels:
+    app: qep-vla-api
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qep-vla-api
+  template:
+    metadata:
+      labels:
+        app: qep-vla-api
+        version: v1.0.0
+    spec:
+      containers:
+      - name: qep-vla-api
+        image: qep-vla:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: REDIS_URL
+          value: "redis://qep-vla-redis:6379"
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              name: qep-vla-secrets
+              key: postgres-url
+        - name: QEP_VLA_ENV
+          value: "production"
+        - name: QEP_VLA_LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+            nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: app-data
+          mountPath: /app/data
+        - name: app-logs
+          mountPath: /app/logs
+        - name: app-models
+          mountPath: /app/models
+      volumes:
+      - name: app-data
+        persistentVolumeClaim:
+          claimName: qep-vla-data-pvc
+      - name: app-logs
+        persistentVolumeClaim:
+          claimName: qep-vla-logs-pvc
+      - name: app-models
+        persistentVolumeClaim:
+          claimName: qep-vla-models-pvc
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qep-vla-api-service
+  labels:
+    app: qep-vla-api
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: qep-vla-api
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qep-vla-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qep-vla-logs-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qep-vla-models-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: qep-vla-secrets
+type: Opaque
+data:
+  postgres-url: cG9zdGdyZXNxbDovL3FlcHZsYTpxZXB2bGExMjNAcG9zdGdyZXM6NTQzMi9xZXB2bGE=  # base64 encoded

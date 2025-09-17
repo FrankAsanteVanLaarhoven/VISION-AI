@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QEP-VLA Master Dashboard - All Systems</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #cccccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1a1a1a;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid #333;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            border-color: #555;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #22c55e, #3b82f6, #8b5cf6);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2a2a2a;
+            border-radius: 12px;
+            border: 1px solid #444;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .card-description {
+            color: #888;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .card-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .card-features li::before {
+            content: '✓';
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: transparent;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #333;
+            border-color: #555;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #f0f0f0;
+            border-color: #f0f0f0;
+        }
+
+        .bo-wei-badge {
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .quick-links {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .quick-links h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .quick-link:hover {
+            background: #333;
+            border-color: #555;
+            transform: translateX(5px);
+        }
+
+        .quick-link-icon {
+            font-size: 1.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            border-top: 1px solid #333;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>QEP-VLA Master Dashboard</h1>
+        <p>Comprehensive Access to All System Components</p>
+        <div class="system-status">
+            <div class="status-dot"></div>
+            <span>All Systems Operational</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h2 class="section-title">Core Dashboards</h2>
+        <div class="dashboard-grid">
+            <!-- Enhanced Dashboard with Bo-Wei Technologies -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🚀</div>
+                    <div>
+                        <div class="card-title">Enhanced Dashboard</div>
+                        <span class="bo-wei-badge">NEW</span>
+                    </div>
+                </div>
+                <p class="card-description">
+                    Advanced dashboard with integrated Bo-Wei technologies including AI Reality Comprehension, Human-Robot Supply Chain, and Safety & Privacy Protection.
+                </p>
+                <ul class="card-features">
+                    <li>AI Reality Comprehension Engine</li>
+                    <li>Human-Robot Supply Chain Integration</li>
+                    <li>Safety & Privacy Asset Protection</li>
+                    <li>Enhanced PVLA Navigation</li>
+                    <li>Comprehensive Analytics</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/enhanced-dashboard.html" class="btn btn-primary">Open Dashboard</a>
+                    <a href="/ui/web_dashboard/enhanced-dashboard.html" class="btn">Alternative Path</a>
+                </div>
+            </div>
+
+            <!-- Command Center -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title">Command Center</div>
+                </div>
+                <p class="card-description">
+                    Central command interface for real-time QEP-VLA platform monitoring with fleet management, navigation controls, and system analytics.
+                </p>
+                <ul class="card-features">
+                    <li>Real-time System Monitoring</li>
+                    <li>Fleet Management</li>
+                    <li>Navigation Controls</li>
+                    <li>Privacy & Security Center</li>
+                    <li>Drone Operations</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/ui/web_dashboard/command-center.html" class="btn btn-primary">Open Command Center</a>
+                </div>
+            </div>
+
+            <!-- Main Dashboard -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Main Dashboard</div>
+                </div>
+                <p class="card-description">
+                    Primary dashboard with collapsible sidebar, real-time analytics, and comprehensive system status monitoring.
+                </p>
+                <ul class="card-features">
+                    <li>Collapsible Sidebar Navigation</li>
+                    <li>Real-time Analytics</li>
+                    <li>System Status Monitoring</li>
+                    <li>Performance Metrics</li>
+                    <li>Quick Access Menu</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/enhanced-dashboard.html" class="btn btn-primary">Open Dashboard</a>
+                    <a href="/enhanced-dashboard.html" class="btn">Alternative Path</a>
+                </div>
+            </div>
+
+            <!-- ARIA Advanced -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🤖</div>
+                    <div class="card-title">ARIA Advanced</div>
+                </div>
+                <p class="card-description">
+                    Lifelike AI assistant with advanced animation, voice interaction, and realistic expressions for enhanced human-AI collaboration.
+                </p>
+                <ul class="card-features">
+                    <li>Lifelike AI Assistant</li>
+                    <li>Advanced Animation System</li>
+                    <li>Voice Interaction</li>
+                    <li>Realistic Expressions</li>
+                    <li>3D Avatar Rendering</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/ui/web_dashboard/aria-advanced.html" class="btn btn-primary">Open ARIA</a>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Additional Components</h2>
+        <div class="dashboard-grid">
+            <!-- Landing Page -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🏠</div>
+                    <div class="card-title">Landing Page</div>
+                </div>
+                <p class="card-description">
+                    Main entry point with React components, Framer Motion animations, and Spline 3D viewer integration.
+                </p>
+                <ul class="card-features">
+                    <li>React Components</li>
+                    <li>Framer Motion Animations</li>
+                    <li>Spline 3D Viewer</li>
+                    <li>Interactive UI Elements</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/landing-react.html" class="btn btn-primary">Open Landing</a>
+                    <a href="/ui/web_dashboard/landing-react.html" class="btn">Alternative Path</a>
+                </div>
+            </div>
+
+            <!-- ARIA Simple -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">💬</div>
+                    <div class="card-title">ARIA Simple</div>
+                </div>
+                <p class="card-description">
+                    Simplified ARIA interface for basic AI interactions and testing.
+                </p>
+                <ul class="card-features">
+                    <li>Basic AI Interface</li>
+                    <li>Simple Interactions</li>
+                    <li>Testing Environment</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/ui/web_dashboard/aria-simple.html" class="btn btn-primary">Open ARIA Simple</a>
+                </div>
+            </div>
+
+            <!-- Robot Demo -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🤖</div>
+                    <div class="card-title">Robot Demo</div>
+                </div>
+                <p class="card-description">
+                    Interactive robot demonstration with face integration and response engine.
+                </p>
+                <ul class="card-features">
+                    <li>Interactive Robot</li>
+                    <li>Face Integration</li>
+                    <li>Response Engine</li>
+                    <li>Demo Environment</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/ui/web_dashboard/robot-demo.html" class="btn btn-primary">Open Robot Demo</a>
+                </div>
+            </div>
+
+            <!-- ARIA Face Integration -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">👤</div>
+                    <div class="card-title">ARIA Face Integration</div>
+                </div>
+                <p class="card-description">
+                    Advanced face recognition and integration system for ARIA AI assistant.
+                </p>
+                <ul class="card-features">
+                    <li>Face Recognition</li>
+                    <li>AI Integration</li>
+                    <li>Advanced Features</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/ui/web_dashboard/aria-face-integration.html" class="btn btn-primary">Open Face Integration</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-links">
+            <h3>Quick Access Links</h3>
+            <div class="links-grid">
+                <a href="/ui/web_dashboard/aria-lifelike.html" class="quick-link">
+                    <span class="quick-link-icon">✨</span>
+                    <span>ARIA Lifelike</span>
+                </a>
+                <a href="/ui/web_dashboard/demo_face_system.py" class="quick-link">
+                    <span class="quick-link-icon">🐍</span>
+                    <span>Face System Demo</span>
+                </a>
+                <a href="/ui/web_dashboard/robot_face_system.py" class="quick-link">
+                    <span class="quick-link-icon">🤖</span>
+                    <span>Robot Face System</span>
+                </a>
+                <a href="/ui/web_dashboard/analytics-dashboard.tsx" class="quick-link">
+                    <span class="quick-link-icon">📈</span>
+                    <span>Analytics Dashboard</span>
+                </a>
+                <a href="/ui/web_dashboard/qep-vla-interactive-robot.tsx" class="quick-link">
+                    <span class="quick-link-icon">🎮</span>
+                    <span>Interactive Robot</span>
+                </a>
+                <a href="/ui/web_dashboard/voice-processor.tsx" class="quick-link">
+                    <span class="quick-link-icon">🎤</span>
+                    <span>Voice Processor</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>QEP-VLA Platform - All Systems Operational | Enhanced with Bo-Wei Technologies</p>
+        <p>Last Updated: <span id="lastUpdated"></span></p>
+    </div>
+
+    <script>
+        // Update last updated time
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        
+        // Add click tracking for analytics
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                console.log('Navigating to:', this.href);
+            });
+        });
+    </script>
+</body>
+</html>

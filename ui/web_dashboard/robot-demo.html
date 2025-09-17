@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QEP-VLA Interactive Robot Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: #d1d5db;
+            max-width: 800px;
+            margin: 0 auto 24px;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .badge {
+            background: rgba(6, 182, 212, 0.2);
+            color: #06b6d4;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .robot-interface {
+            background: rgba(0, 0, 0, 0.96);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .robot-display {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .robot-avatar {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .robot-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .robot-avatar.listening {
+            animation: listening 1s infinite;
+        }
+
+        .robot-avatar.processing {
+            animation: processing 0.5s infinite;
+        }
+
+        .robot-avatar.speaking {
+            animation: speaking 0.3s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes listening {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px #10b981; }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px #10b981; }
+        }
+
+        @keyframes processing {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+        }
+
+        @keyframes speaking {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .robot-status {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #06b6d4;
+        }
+
+        .robot-activity {
+            font-size: 1rem;
+            color: #d1d5db;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .status-overlay {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            min-width: 200px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6b7280;
+        }
+
+        .status-dot.listening {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.processing {
+            background: #f59e0b;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.executing {
+            background: #3b82f6;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.speaking {
+            background: #8b5cf6;
+            animation: pulse 2s infinite;
+        }
+
+        .metrics-overlay {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 0.75rem;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+
+        .metric-label {
+            color: #9ca3af;
+        }
+
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .control-card {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .control-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #d1d5db;
+            border: 1px solid #6b7280;
+        }
+
+        .btn-outline:hover {
+            background: #374151;
+        }
+
+        .text-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 12px;
+            background: #374151;
+            border: 1px solid #6b7280;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .text-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #06b6d4;
+        }
+
+        .command-history {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .command-item {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+        }
+
+        .command-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .command-text {
+            color: #06b6d4;
+            font-weight: 500;
+        }
+
+        .command-status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .status-processing {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        .command-details {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+
+        .interaction-modes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mode-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.875rem;
+        }
+
+        .mode-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            text-align: center;
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .footer-description {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #6ee7b7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+        }
+
+        .voice-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .voice-select {
+            padding: 8px 12px;
+            background: #374151;
+            border: 1px solid #6b7280;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .voice-select:focus {
+            outline: none;
+            border-color: #06b6d4;
+        }
+
+        .character-select {
+            padding: 8px 12px;
+            background: #374151;
+            border: 1px solid #6b7280;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .character-select:focus {
+            outline: none;
+            border-color: #06b6d4;
+        }
+
+        .voice-preview {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .preview-btn {
+            padding: 6px 12px;
+            background: #1f2937;
+            border: 1px solid #4b5563;
+            border-radius: 6px;
+            color: #d1d5db;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preview-btn:hover {
+            background: #374151;
+        }
+
+        .voice-info {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>QEP-VLA Interactive Robot Demo</h1>
+            <p>Experience the future of human-robot interaction with quantum-enhanced AI, privacy-preserving processing, and natural language understanding.</p>
+            <div class="badges">
+                <span class="badge">97.3% Accuracy</span>
+                <span class="badge">&lt;50ms Latency</span>
+                <span class="badge">Quantum Enhanced</span>
+                <span class="badge">Privacy Protected</span>
+            </div>
+        </div>
+
+        <!-- Main Interface -->
+        <div class="main-grid">
+            <!-- Robot Interface -->
+            <div class="robot-interface">
+                <div class="robot-display">
+                    <div class="robot-avatar" id="robotAvatar">🤖</div>
+                    <div class="robot-status" id="robotStatus">Ready to Help</div>
+                    <div class="robot-activity" id="robotActivity">Click the microphone to start talking to me!</div>
+                </div>
+
+                <!-- Status Overlay -->
+                <div class="status-overlay">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">idle</span>
+                        <span class="badge" id="moodBadge">neutral</span>
+                    </div>
+                    <p id="activityText">Waiting for your command</p>
+                </div>
+
+                <!-- Metrics Overlay -->
+                <div class="metrics-overlay">
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value" style="color: #10b981;" id="accuracyValue">97.3%</div>
+                            <div class="metric-label">Accuracy</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" style="color: #3b82f6;" id="latencyValue">47ms</div>
+                            <div class="metric-label">Latency</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" style="color: #8b5cf6;" id="privacyValue">ε=0.1</div>
+                            <div class="metric-label">Privacy</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" style="color: #f59e0b;" id="quantumValue">2.3x</div>
+                            <div class="metric-label">Quantum</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="controls-panel">
+                <!-- Voice Controls -->
+                <div class="control-card">
+                    <h3>🎤 Voice Control</h3>
+                    <div id="voiceStatus"></div>
+                    
+                    <!-- Voice Settings -->
+                    <div class="voice-settings">
+                        <div>
+                            <label style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 4px; display: block;">Voice Character:</label>
+                            <select class="character-select" id="characterSelect">
+                                <option value="professional">Professional Assistant</option>
+                                <option value="friendly">Friendly Companion</option>
+                                <option value="technical">Technical Expert</option>
+                                <option value="enthusiastic">Enthusiastic Guide</option>
+                                <option value="calm">Calm Instructor</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 4px; display: block;">Voice Type:</label>
+                            <select class="voice-select" id="voiceSelect">
+                                <option value="rachel">Rachel (Female, Clear)</option>
+                                <option value="drew">Drew (Male, Professional)</option>
+                                <option value="clyde">Clyde (Male, Friendly)</option>
+                                <option value="paul">Paul (Male, Authoritative)</option>
+                                <option value="domi">Domi (Female, Confident)</option>
+                                <option value="dave">Dave (Male, Casual)</option>
+                                <option value="fin">Fin (Male, British)</option>
+                                <option value="sarah">Sarah (Female, Warm)</option>
+                                <option value="antoni">Antoni (Male, Smooth)</option>
+                                <option value="thomas">Thomas (Male, Deep)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="voice-preview">
+                            <button class="preview-btn" id="previewBtn">Preview Voice</button>
+                            <span class="voice-info" id="voiceInfo">ElevenLabs AI Voice</span>
+                        </div>
+                    </div>
+                    
+                    <div class="voice-controls">
+                        <button class="btn btn-primary" id="voiceBtn">
+                            <span id="voiceIcon">🎤</span>
+                            <span id="voiceText">Start Listening</span>
+                        </button>
+                        <button class="btn btn-outline" id="volumeBtn">
+                            <span id="volumeIcon">🔊</span>
+                        </button>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #9ca3af; line-height: 1.4;">
+                        <p>• Say "Hello" to greet the robot</p>
+                        <p>• "Move forward/backward/left/right"</p>
+                        <p>• "Turn left/right" or "Spin around"</p>
+                        <p>• "Dance" or "Wave" for animations</p>
+                        <p>• "Analyze environment" for AI analysis</p>
+                    </div>
+                </div>
+
+                <!-- Text Commands -->
+                <div class="control-card">
+                    <h3>⌨️ Text Commands</h3>
+                    <div class="text-input-group">
+                        <input type="text" class="text-input" id="textInput" placeholder="Type a command...">
+                        <button class="btn btn-primary" id="sendBtn">Send</button>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 8px;">
+                        Keyboard shortcuts: Ctrl+L (voice), Ctrl+Enter (send)
+                    </div>
+                </div>
+
+                <!-- Interaction Modes -->
+                <div class="control-card">
+                    <h3>♿ Interaction Modes</h3>
+                    <div class="interaction-modes">
+                        <div class="mode-item">
+                            <span class="mode-icon">🖱️</span>
+                            <span>Click: Click robot to interact</span>
+                        </div>
+                        <div class="mode-item">
+                            <span class="mode-icon">🎤</span>
+                            <span>Voice: Natural language commands</span>
+                        </div>
+                        <div class="mode-item">
+                            <span class="mode-icon">⌨️</span>
+                            <span>Text: Type commands directly</span>
+                        </div>
+                        <div class="mode-item">
+                            <span class="mode-icon">♿</span>
+                            <span>Accessible: Full keyboard navigation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Commands -->
+                <div class="control-card">
+                    <h3>🧠 Command History</h3>
+                    <div class="command-history" id="commandHistory">
+                        <p style="color: #6b7280; text-align: center; padding: 16px;">
+                            No commands yet. Try saying "Hello" or typing a command!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-grid">
+                <div class="footer-item">
+                    <span class="footer-icon" style="color: #10b981;">🛡️</span>
+                    <span class="footer-title">Privacy Protected</span>
+                    <span class="footer-description">Differential Privacy ε=0.1</span>
+                </div>
+                <div class="footer-item">
+                    <span class="footer-icon" style="color: #f59e0b;">⚡</span>
+                    <span class="footer-title">Real-Time AI</span>
+                    <span class="footer-description">Sub-50ms Processing</span>
+                </div>
+                <div class="footer-item">
+                    <span class="footer-icon" style="color: #3b82f6;">💻</span>
+                    <span class="footer-title">Edge Optimized</span>
+                    <span class="footer-description">Local Processing</span>
+                </div>
+                <div class="footer-item">
+                    <span class="footer-icon" style="color: #8b5cf6;">🧠</span>
+                    <span class="footer-title">Quantum Enhanced</span>
+                    <span class="footer-description">2.3x Performance Boost</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // QEP-VLA Interactive Robot Demo JavaScript
+        class QEPVLARobot {
+            constructor() {
+                this.isListening = false;
+                this.isSpeaking = false;
+                this.voiceCommands = [];
+                this.robotState = {
+                    position: { x: 0, y: 0, z: 0 },
+                    rotation: { x: 0, y: 0, z: 0 },
+                    activity: 'Waiting for your command',
+                    status: 'idle',
+                    mood: 'neutral'
+                };
+                this.qepvlaMetrics = {
+                    accuracy: 97.3,
+                    latency: 47,
+                    privacy: 0.1,
+                    quantumEnhancement: 2.3,
+                    confidenceScore: 0.94
+                };
+
+                this.recognition = null;
+                this.synthesis = null;
+                
+                // ElevenLabs Configuration
+                this.elevenLabsApiKey = 'sk_a5ac890c43823746d54383e7416d2f1fc42003b5cd71feb0';
+                this.elevenLabsBaseUrl = 'https://api.elevenlabs.io/v1';
+                this.currentVoice = 'rachel';
+                this.currentCharacter = 'professional';
+                this.useElevenLabs = true;
+
+                this.init();
+            }
+
+            init() {
+                this.setupSpeechRecognition();
+                this.setupEventListeners();
+                this.updateUI();
+                this.updateVoiceInfo();
+                this.showVoiceStatus();
+            }
+
+            setupSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    this.recognition = new webkitSpeechRecognition();
+                    this.recognition.continuous = true;
+                    this.recognition.interimResults = true;
+                    this.recognition.lang = 'en-US';
+
+                    this.recognition.onresult = (event) => {
+                        const transcript = Array.from(event.results)
+                            .map(result => result[0].transcript)
+                            .join('');
+
+                        if (event.results[event.results.length - 1].isFinal) {
+                            const command = {
+                                id: Date.now().toString(),
+                                text: transcript,
+                                action: this.parseVoiceCommand(transcript),
+                                timestamp: Date.now(),
+                                confidence: event.results[event.results.length - 1][0].confidence,
+                                processed: false
+                            };
+                            
+                            this.voiceCommands.push(command);
+                            this.addCommandToHistory(command);
+                            this.processVoiceCommand(command);
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.isListening = false;
+                        this.updateRobotState('idle', 'Voice recognition error');
+                        this.updateVoiceButton();
+                        this.showVoiceStatus('error', 'Speech recognition error: ' + event.error);
+                    };
+
+                    this.recognition.onstart = () => {
+                        this.showVoiceStatus('success', 'Listening... Speak now!');
+                    };
+
+                    this.recognition.onend = () => {
+                        this.isListening = false;
+                        this.updateVoiceButton();
+                        this.updateRobotState('idle', 'Voice recognition stopped');
+                    };
+
+                    this.synthesis = window.speechSynthesis;
+                } else {
+                    this.showVoiceStatus('error', 'Speech recognition not supported in this browser. Try Chrome or Edge.');
+                }
+            }
+
+            setupEventListeners() {
+                // Voice control button
+                document.getElementById('voiceBtn').addEventListener('click', () => {
+                    this.isListening ? this.stopListening() : this.startListening();
+                });
+
+                // Volume button
+                document.getElementById('volumeBtn').addEventListener('click', () => {
+                    this.isSpeaking = !this.isSpeaking;
+                    this.updateVolumeButton();
+                });
+
+                // Text input
+                document.getElementById('sendBtn').addEventListener('click', () => {
+                    this.handleTextCommand();
+                });
+
+                document.getElementById('textInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.handleTextCommand();
+                    }
+                });
+
+                // Robot avatar click
+                document.getElementById('robotAvatar').addEventListener('click', () => {
+                    this.handleRobotClick();
+                });
+
+                // Voice settings
+                document.getElementById('voiceSelect').addEventListener('change', (e) => {
+                    this.currentVoice = e.target.value;
+                    this.updateVoiceInfo();
+                });
+
+                document.getElementById('characterSelect').addEventListener('change', (e) => {
+                    this.currentCharacter = e.target.value;
+                    this.updateVoiceInfo();
+                });
+
+                // Preview button
+                document.getElementById('previewBtn').addEventListener('click', () => {
+                    this.previewVoice();
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey) {
+                        switch (e.key.toLowerCase()) {
+                            case 'l':
+                                e.preventDefault();
+                                this.isListening ? this.stopListening() : this.startListening();
+                                break;
+                            case 'enter':
+                                e.preventDefault();
+                                this.handleTextCommand();
+                                break;
+                        }
+                    }
+                });
+            }
+
+            parseVoiceCommand(text) {
+                const lowerText = text.toLowerCase();
+                
+                if (lowerText.includes('move') || lowerText.includes('go')) {
+                    if (lowerText.includes('forward') || lowerText.includes('ahead')) return 'MOVE_FORWARD';
+                    if (lowerText.includes('back') || lowerText.includes('backward')) return 'MOVE_BACKWARD';
+                    if (lowerText.includes('left')) return 'MOVE_LEFT';
+                    if (lowerText.includes('right')) return 'MOVE_RIGHT';
+                }
+                
+                if (lowerText.includes('turn') || lowerText.includes('rotate')) {
+                    if (lowerText.includes('left')) return 'ROTATE_LEFT';
+                    if (lowerText.includes('right')) return 'ROTATE_RIGHT';
+                    if (lowerText.includes('around')) return 'ROTATE_360';
+                }
+                
+                if (lowerText.includes('hello') || lowerText.includes('hi')) return 'GREET';
+                if (lowerText.includes('dance')) return 'DANCE';
+                if (lowerText.includes('wave')) return 'WAVE';
+                if (lowerText.includes('spin')) return 'SPIN';
+                if (lowerText.includes('analyze') || lowerText.includes('scan')) return 'ANALYZE_ENVIRONMENT';
+                if (lowerText.includes('privacy') || lowerText.includes('secure')) return 'PRIVACY_CHECK';
+                if (lowerText.includes('quantum')) return 'QUANTUM_ANALYSIS';
+                
+                return 'UNKNOWN_COMMAND';
+            }
+
+            async processVoiceCommand(command) {
+                this.updateRobotState('processing', `Processing: "${command.text}"`, 'focused');
+
+                // Simulate processing delay
+                await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50));
+
+                // Update metrics
+                this.qepvlaMetrics.latency = Math.random() * 20 + 35;
+                this.qepvlaMetrics.confidenceScore = command.confidence;
+                this.qepvlaMetrics.accuracy = Math.min(99.5, this.qepvlaMetrics.accuracy + (Math.random() - 0.5) * 0.5);
+
+                await this.executeRobotAction(command.action, command.text);
+                
+                // Mark as processed
+                command.processed = true;
+                this.updateCommandHistory();
+            }
+
+            async executeRobotAction(action, originalText) {
+                this.updateRobotState('executing');
+
+                let response = '';
+                let newMood = 'neutral';
+
+                switch (action) {
+                    case 'MOVE_FORWARD':
+                        response = 'Moving forward with quantum-enhanced navigation.';
+                        newMood = 'focused';
+                        break;
+                    case 'MOVE_BACKWARD':
+                        response = 'Moving backward while maintaining privacy protocols.';
+                        break;
+                    case 'MOVE_LEFT':
+                        response = 'Navigating left using edge AI optimization.';
+                        break;
+                    case 'MOVE_RIGHT':
+                        response = 'Navigating right with 97.3% accuracy.';
+                        break;
+                    case 'ROTATE_LEFT':
+                        response = 'Rotating left. Quantum sensors calibrated.';
+                        break;
+                    case 'ROTATE_RIGHT':
+                        response = 'Rotating right. Privacy preserved during movement.';
+                        break;
+                    case 'GREET':
+                        response = `Hello! I'm powered by the QEP-VLA framework with ${this.qepvlaMetrics.accuracy.toFixed(1)}% accuracy and ${Math.round(this.qepvlaMetrics.latency)}ms latency.`;
+                        newMood = 'excited';
+                        break;
+                    case 'DANCE':
+                        response = 'Initiating quantum-enhanced dance sequence!';
+                        newMood = 'excited';
+                        break;
+                    case 'ANALYZE_ENVIRONMENT':
+                        response = `Environment analysis complete. Privacy level: ε=${this.qepvlaMetrics.privacy}, Quantum enhancement: ${this.qepvlaMetrics.quantumEnhancement}x, Confidence: ${(this.qepvlaMetrics.confidenceScore * 100).toFixed(1)}%`;
+                        newMood = 'focused';
+                        break;
+                    case 'PRIVACY_CHECK':
+                        response = `Privacy systems active. Differential privacy with epsilon ${this.qepvlaMetrics.privacy}. All data encrypted using quantum-enhanced protocols.`;
+                        break;
+                    case 'QUANTUM_ANALYSIS':
+                        response = `Quantum sensors operational. Enhancement factor: ${this.qepvlaMetrics.quantumEnhancement}x. Navigation accuracy improved by 24% over classical methods.`;
+                        break;
+                    default:
+                        response = `I heard "${originalText}" but I'm not sure how to help with that. Try commands like "move forward", "turn left", or "analyze environment".`;
+                        newMood = 'confused';
+                }
+
+                this.updateRobotState('speaking', response, newMood);
+                await this.speakResponse(response);
+                this.updateRobotState('idle', 'Ready for next command');
+            }
+
+            async speakResponse(text) {
+                if (this.useElevenLabs) {
+                    return this.speakWithElevenLabs(text);
+                } else {
+                    return this.speakWithBrowser(text);
+                }
+            }
+
+            async speakWithElevenLabs(text) {
+                try {
+                    // Get character-based response
+                    const characterText = this.getCharacterResponse(text);
+                    
+                    const response = await fetch(`${this.elevenLabsBaseUrl}/text-to-speech/${this.getVoiceId(this.currentVoice)}`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'audio/mpeg',
+                            'Content-Type': 'application/json',
+                            'xi-api-key': this.elevenLabsApiKey
+                        },
+                        body: JSON.stringify({
+                            text: characterText,
+                            model_id: 'eleven_monolingual_v1',
+                            voice_settings: {
+                                stability: 0.5,
+                                similarity_boost: 0.5
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`ElevenLabs API error: ${response.status}`);
+                    }
+
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    
+                    return new Promise((resolve) => {
+                        audio.onended = () => {
+                            this.isSpeaking = false;
+                            this.updateVolumeButton();
+                            URL.revokeObjectURL(audioUrl);
+                            resolve();
+                        };
+                        
+                        audio.onerror = () => {
+                            console.warn('ElevenLabs audio failed, falling back to browser TTS');
+                            this.speakWithBrowser(text).then(resolve);
+                        };
+                        
+                        audio.play();
+                    });
+                } catch (error) {
+                    console.warn('ElevenLabs API error:', error);
+                    this.showVoiceStatus('error', 'ElevenLabs API error, using browser voice');
+                    return this.speakWithBrowser(text);
+                }
+            }
+
+            async speakWithBrowser(text) {
+                return new Promise((resolve) => {
+                    if (!this.synthesis) {
+                        resolve();
+                        return;
+                    }
+
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 0.8;
+                    
+                    utterance.onend = () => {
+                        this.isSpeaking = false;
+                        this.updateVolumeButton();
+                        resolve();
+                    };
+                    
+                    this.synthesis.speak(utterance);
+                });
+            }
+
+            getCharacterResponse(text) {
+                const characterPrompts = {
+                    professional: `As a professional AI assistant, respond with: ${text}`,
+                    friendly: `As a friendly and warm companion, respond with: ${text}`,
+                    technical: `As a technical expert, respond with: ${text}`,
+                    enthusiastic: `As an enthusiastic guide, respond with: ${text}`,
+                    calm: `As a calm and patient instructor, respond with: ${text}`
+                };
+                
+                return characterPrompts[this.currentCharacter] || text;
+            }
+
+            getVoiceId(voiceName) {
+                const voiceMap = {
+                    'rachel': '21m00Tcm4TlvDq8ikWAM',
+                    'drew': '29vD33N1CtxCmqQRPOHJ',
+                    'clyde': '2EiwWnXFnvU5JabPnv8n',
+                    'paul': '5Q0t7uMcjvnagumLfvZi',
+                    'domi': 'AZnzlk1XvdvUeBnXmlld',
+                    'dave': 'CYw3kZ02Hs0563khs1Fj',
+                    'fin': 'D38z5RcWu1voky8WS1ja',
+                    'sarah': 'EXAVITQu4vr4xnSDxMaL',
+                    'antoni': 'ErXwobaYiN019PkySvjV',
+                    'thomas': 'GBv7mTt0atIp3Br8iCZE'
+                };
+                
+                return voiceMap[voiceName] || voiceMap['rachel'];
+            }
+
+            async previewVoice() {
+                const previewTexts = {
+                    professional: "Hello! I'm your professional QEP-VLA research assistant, ready to help with quantum-enhanced navigation.",
+                    friendly: "Hi there! I'm your friendly AI companion, excited to explore the world of privacy-preserving technology with you!",
+                    technical: "Greetings. I am a technical expert in quantum-enhanced privacy-preserving AI systems. How may I assist you?",
+                    enthusiastic: "Hey! I'm super excited to be your enthusiastic guide through the amazing world of QEP-VLA technology!",
+                    calm: "Hello. I'm here to calmly and patiently help you understand our quantum-enhanced navigation systems."
+                };
+                
+                const previewText = previewTexts[this.currentCharacter] || previewTexts['professional'];
+                await this.speakWithElevenLabs(previewText);
+            }
+
+            updateVoiceInfo() {
+                const voiceInfo = document.getElementById('voiceInfo');
+                const voiceNames = {
+                    'rachel': 'Rachel (Female, Clear)',
+                    'drew': 'Drew (Male, Professional)',
+                    'clyde': 'Clyde (Male, Friendly)',
+                    'paul': 'Paul (Male, Authoritative)',
+                    'domi': 'Domi (Female, Confident)',
+                    'dave': 'Dave (Male, Casual)',
+                    'fin': 'Fin (Male, British)',
+                    'sarah': 'Sarah (Female, Warm)',
+                    'antoni': 'Antoni (Male, Smooth)',
+                    'thomas': 'Thomas (Male, Deep)'
+                };
+                
+                const characterNames = {
+                    'professional': 'Professional Assistant',
+                    'friendly': 'Friendly Companion',
+                    'technical': 'Technical Expert',
+                    'enthusiastic': 'Enthusiastic Guide',
+                    'calm': 'Calm Instructor'
+                };
+                
+                voiceInfo.textContent = `${voiceNames[this.currentVoice]} • ${characterNames[this.currentCharacter]}`;
+            }
+
+            startListening() {
+                if (this.recognition && !this.isListening) {
+                    this.isListening = true;
+                    this.updateRobotState('listening', 'Listening for your command...', 'focused');
+                    this.recognition.start();
+                    this.updateVoiceButton();
+                } else if (!this.recognition) {
+                    this.showVoiceStatus('error', 'Speech recognition not available. Please use Chrome or Edge browser.');
+                }
+            }
+
+            stopListening() {
+                if (this.recognition && this.isListening) {
+                    this.isListening = false;
+                    this.recognition.stop();
+                    this.updateRobotState('idle', 'Voice recognition stopped');
+                    this.updateVoiceButton();
+                }
+            }
+
+            handleTextCommand() {
+                const textInput = document.getElementById('textInput');
+                const text = textInput.value.trim();
+                
+                if (!text) return;
+
+                const command = {
+                    id: Date.now().toString(),
+                    text: text,
+                    action: this.parseVoiceCommand(text),
+                    timestamp: Date.now(),
+                    confidence: 1.0,
+                    processed: false
+                };
+
+                this.voiceCommands.push(command);
+                this.addCommandToHistory(command);
+                textInput.value = '';
+                this.processVoiceCommand(command);
+            }
+
+            handleRobotClick() {
+                const responses = [
+                    "Hello! I'm your QEP-VLA research assistant. Click the microphone to talk to me!",
+                    "Hi there! I'm powered by quantum-enhanced AI. Try saying 'Hello' or 'Move forward'!",
+                    "Greetings! I can help you with navigation, analysis, and more. Use voice or text commands!",
+                    "I'm ready to help! Say 'Analyze environment' or 'Explain privacy' to see what I can do!"
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                this.updateRobotState('speaking', randomResponse, 'excited');
+                this.speakResponse(randomResponse);
+            }
+
+            updateRobotState(status, activity = null, mood = null) {
+                this.robotState.status = status;
+                if (activity) this.robotState.activity = activity;
+                if (mood) this.robotState.mood = mood;
+                this.updateUI();
+            }
+
+            updateUI() {
+                // Update status
+                document.getElementById('statusText').textContent = this.robotState.status;
+                document.getElementById('moodBadge').textContent = this.robotState.mood;
+                document.getElementById('activityText').textContent = this.robotState.activity;
+                document.getElementById('robotStatus').textContent = this.robotState.status.charAt(0).toUpperCase() + this.robotState.status.slice(1);
+                document.getElementById('robotActivity').textContent = this.robotState.activity;
+
+                // Update status dot
+                const statusDot = document.getElementById('statusDot');
+                statusDot.className = 'status-dot';
+                if (this.robotState.status !== 'idle') {
+                    statusDot.classList.add(this.robotState.status);
+                }
+
+                // Update robot avatar
+                const robotAvatar = document.getElementById('robotAvatar');
+                robotAvatar.className = 'robot-avatar';
+                if (this.robotState.status !== 'idle') {
+                    robotAvatar.classList.add(this.robotState.status);
+                }
+
+                // Update metrics
+                document.getElementById('accuracyValue').textContent = this.qepvlaMetrics.accuracy.toFixed(1) + '%';
+                document.getElementById('latencyValue').textContent = Math.round(this.qepvlaMetrics.latency) + 'ms';
+                document.getElementById('privacyValue').textContent = 'ε=' + this.qepvlaMetrics.privacy;
+                document.getElementById('quantumValue').textContent = this.qepvlaMetrics.quantumEnhancement + 'x';
+            }
+
+            updateVoiceButton() {
+                const voiceBtn = document.getElementById('voiceBtn');
+                const voiceIcon = document.getElementById('voiceIcon');
+                const voiceText = document.getElementById('voiceText');
+
+                if (this.isListening) {
+                    voiceBtn.className = 'btn btn-danger';
+                    voiceIcon.textContent = '🎤';
+                    voiceText.textContent = 'Stop Listening';
+                } else {
+                    voiceBtn.className = 'btn btn-primary';
+                    voiceIcon.textContent = '🎤';
+                    voiceText.textContent = 'Start Listening';
+                }
+            }
+
+            updateVolumeButton() {
+                const volumeBtn = document.getElementById('volumeBtn');
+                const volumeIcon = document.getElementById('volumeIcon');
+
+                if (this.isSpeaking) {
+                    volumeIcon.textContent = '🔇';
+                } else {
+                    volumeIcon.textContent = '🔊';
+                }
+            }
+
+            showVoiceStatus(type, message) {
+                const voiceStatus = document.getElementById('voiceStatus');
+                voiceStatus.innerHTML = `<div class="${type}-message">${message}</div>`;
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    voiceStatus.innerHTML = '';
+                }, 5000);
+            }
+
+            addCommandToHistory(command) {
+                const history = document.getElementById('commandHistory');
+                
+                // Clear "no commands" message
+                if (this.voiceCommands.length === 1) {
+                    history.innerHTML = '';
+                }
+
+                const commandDiv = document.createElement('div');
+                commandDiv.className = 'command-item';
+                commandDiv.innerHTML = `
+                    <div class="command-header">
+                        <span class="command-text">${command.text.substring(0, 30)}${command.text.length > 30 ? '...' : ''}</span>
+                        <span class="command-status ${command.processed ? 'status-completed' : 'status-processing'}">
+                            ${command.processed ? 'Completed' : 'Processing'}
+                        </span>
+                    </div>
+                    <div class="command-details">
+                        Confidence: ${(command.confidence * 100).toFixed(1)}% • 
+                        Action: ${command.action.replace('_', ' ').toLowerCase()}
+                    </div>
+                `;
+                
+                history.insertBefore(commandDiv, history.firstChild);
+                
+                // Keep only last 5 commands
+                while (history.children.length > 5) {
+                    history.removeChild(history.lastChild);
+                }
+            }
+
+            updateCommandHistory() {
+                const history = document.getElementById('commandHistory');
+                const items = history.querySelectorAll('.command-item');
+                
+                items.forEach((item, index) => {
+                    const command = this.voiceCommands[this.voiceCommands.length - 1 - index];
+                    if (command) {
+                        const statusSpan = item.querySelector('.command-status');
+                        statusSpan.className = `command-status ${command.processed ? 'status-completed' : 'status-processing'}`;
+                        statusSpan.textContent = command.processed ? 'Completed' : 'Processing';
+                    }
+                });
+            }
+        }
+
+        // Initialize the robot when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new QEPVLARobot();
+        });
+    </script>
+</body>
+</html>

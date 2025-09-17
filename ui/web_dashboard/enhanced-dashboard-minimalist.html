@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced QEP-VLA Command Center - Bo-Wei Technologies Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles - Clean White */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: #ffffff;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.08);
+            border-right: 1px solid #e5e5e5;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-toggle {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: #333333;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #000000;
+            color: #ffffff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .sidebar-content {
+            padding: 20px 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .sidebar-section h4 {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding: 0 20px;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 2px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333333;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .menu-link:hover {
+            background: #f8f8f8;
+            color: #000000;
+        }
+
+        .menu-link.active {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .menu-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+
+        .status-indicator.online {
+            background: #22c55e;
+        }
+
+        .status-indicator.warning {
+            background: #f59e0b;
+        }
+
+        .status-indicator.error {
+            background: #ef4444;
+        }
+
+        .bo-wei-badge {
+            background: #000000;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: #ffffff;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-header {
+            padding: 32px 40px;
+            border-bottom: 1px solid #e5e5e5;
+            background: #ffffff;
+        }
+
+        .main-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .main-subtitle {
+            font-size: 16px;
+            color: #666666;
+            font-weight: 400;
+        }
+
+        .content-area {
+            padding: 40px;
+        }
+
+        /* Technology Grid */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .tech-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border-color: #000000;
+        }
+
+        .tech-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .tech-card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .tech-card-icon {
+            font-size: 20px;
+        }
+
+        .tech-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tech-status.online {
+            color: #22c55e;
+        }
+
+        .tech-status.warning {
+            color: #f59e0b;
+        }
+
+        .tech-status.error {
+            color: #ef4444;
+        }
+
+        .tech-card-description {
+            color: #666666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .tech-card-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #333333;
+        }
+
+        .btn-secondary {
+            background: #f8f8f8;
+            color: #000000;
+            border: 1px solid #e5e5e5;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
+        /* Response Box */
+        .response-box {
+            background: #f8f8f8;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .response-box.success {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .response-box.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .response-box.warning {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        /* API Endpoints Section */
+        .api-section {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .api-section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 16px;
+        }
+
+        .api-endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .api-endpoint {
+            background: #f8f8f8;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .api-endpoint h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .api-endpoint p {
+            font-size: 12px;
+            color: #666666;
+            margin-bottom: 8px;
+        }
+
+        .api-method {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .api-method.get {
+            background: #22c55e;
+            color: #ffffff;
+        }
+
+        .api-method.post {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        /* Collapsed Sidebar */
+        body.sidebar-collapsed .sidebar {
+            width: 64px;
+        }
+
+        body.sidebar-collapsed .main-content {
+            margin-left: 64px;
+        }
+
+        body.sidebar-collapsed .sidebar .menu-text,
+        body.sidebar-collapsed .sidebar .logo-text,
+        body.sidebar-collapsed .sidebar h4 {
+            display: none;
+        }
+
+        body.sidebar-collapsed .sidebar .menu-link {
+            justify-content: center;
+            padding: 12px;
+        }
+
+        body.sidebar-collapsed .sidebar .menu-icon {
+            margin-right: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">Q</div>
+                <div class="logo-text">QEP-VLA</div>
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <span>☰</span>
+            </button>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- Core Technologies -->
+            <div class="sidebar-section">
+                <h4>Core Technologies</h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">📊</div>
+                            <div class="menu-text">Analytics</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">🏭</div>
+                            <div class="menu-text">Production</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">🔒</div>
+                            <div class="menu-text">Security</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">📡</div>
+                            <div class="menu-text">Network</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Bo-Wei Technologies -->
+            <div class="sidebar-section">
+                <h4>🚀 Bo-Wei Technologies</h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link active">
+                            <div class="menu-icon">🧠</div>
+                            <div class="menu-text">AI Reality Comprehension</div>
+                            <div class="status-indicator online"></div>
+                            <span class="bo-wei-badge">NEW</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">🔗</div>
+                            <div class="menu-text">Human-Robot Supply Chain</div>
+                            <div class="status-indicator online"></div>
+                            <span class="bo-wei-badge">NEW</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">🛡️</div>
+                            <div class="menu-text">Safety & Privacy Protection</div>
+                            <div class="status-indicator online"></div>
+                            <span class="bo-wei-badge">NEW</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">🎯</div>
+                            <div class="menu-text">Enhanced Navigation</div>
+                            <div class="status-indicator online"></div>
+                            <span class="bo-wei-badge">NEW</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Additional Features -->
+            <div class="sidebar-section">
+                <h4>Additional Features</h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">📈</div>
+                            <div class="menu-text">Performance</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">📊</div>
+                            <div class="menu-text">Reports</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">🎮</div>
+                            <div class="menu-text">Simulation</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div class="menu-icon">🎲</div>
+                            <div class="menu-text">Testing</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="main-header">
+            <h1 class="main-title">Enhanced QEP-VLA Command Center</h1>
+            <p class="main-subtitle">Quantum-Enhanced Privacy-preserving Vision-Language-Action Platform with Bo-Wei Technologies Integration</p>
+        </div>
+
+        <div class="content-area">
+            <!-- Technology Cards -->
+            <div class="tech-grid">
+                <!-- AI Reality Comprehension -->
+                <div class="tech-card">
+                    <div class="tech-card-header">
+                        <div class="tech-card-title">
+                            <div class="tech-card-icon">🧠</div>
+                            <div>AI Reality Comprehension</div>
+                        </div>
+                        <div class="tech-status online">
+                            <div class="status-indicator online"></div>
+                            Online
+                        </div>
+                    </div>
+                    <div class="tech-card-description">
+                        Multi-dimensional perception and understanding of physical, digital, and semantic reality with quantum enhancement.
+                    </div>
+                    <div class="tech-card-actions">
+                        <button class="btn btn-primary" onclick="testRealityComprehension()">
+                            🧠 Test Reality Comprehension
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewRealityStatus()">
+                            📊 Status
+                        </button>
+                    </div>
+                    <div id="reality-response" class="response-box" style="display: none;"></div>
+                </div>
+
+                <!-- Human-Robot Supply Chain -->
+                <div class="tech-card">
+                    <div class="tech-card-header">
+                        <div class="tech-card-title">
+                            <div class="tech-card-icon">🔗</div>
+                            <div>Human-Robot Supply Chain</div>
+                        </div>
+                        <div class="tech-status online">
+                            <div class="status-indicator online"></div>
+                            Online
+                        </div>
+                    </div>
+                    <div class="tech-card-description">
+                        Comprehensive safety, privacy, and coordination for human-robot collaboration in supply chain operations.
+                    </div>
+                    <div class="tech-card-actions">
+                        <button class="btn btn-primary" onclick="testSupplyChain()">
+                            🔗 Test Supply Chain
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewSupplyChainStatus()">
+                            📊 Status
+                        </button>
+                    </div>
+                    <div id="supply-chain-response" class="response-box" style="display: none;"></div>
+                </div>
+
+                <!-- Safety & Privacy Protection -->
+                <div class="tech-card">
+                    <div class="tech-card-header">
+                        <div class="tech-card-title">
+                            <div class="tech-card-icon">🛡️</div>
+                            <div>Safety & Privacy Protection</div>
+                        </div>
+                        <div class="tech-status online">
+                            <div class="status-indicator online"></div>
+                            Online
+                        </div>
+                    </div>
+                    <div class="tech-card-description">
+                        Multi-layer safety framework with quantum-enhanced privacy protection and asset tracking.
+                    </div>
+                    <div class="tech-card-actions">
+                        <button class="btn btn-primary" onclick="testSafetyPrivacy()">
+                            🛡️ Test Protection
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewSafetyStatus()">
+                            📊 Status
+                        </button>
+                    </div>
+                    <div id="safety-response" class="response-box" style="display: none;"></div>
+                </div>
+
+                <!-- Enhanced Navigation -->
+                <div class="tech-card">
+                    <div class="tech-card-header">
+                        <div class="tech-card-title">
+                            <div class="tech-card-icon">🎯</div>
+                            <div>Enhanced Navigation</div>
+                        </div>
+                        <div class="tech-status online">
+                            <div class="status-indicator online"></div>
+                            Online
+                        </div>
+                    </div>
+                    <div class="tech-card-description">
+                        Unified navigation system integrating all Bo-Wei technologies for world-class autonomous navigation.
+                    </div>
+                    <div class="tech-card-actions">
+                        <button class="btn btn-primary" onclick="testNavigation()">
+                            🎯 Test Navigation
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewNavigationStatus()">
+                            📊 Status
+                        </button>
+                    </div>
+                    <div id="navigation-response" class="response-box" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- API Endpoints Section -->
+            <div class="api-section">
+                <h3>API Endpoints</h3>
+                <div class="api-endpoints">
+                    <div class="api-endpoint">
+                        <h4><span class="api-method post">POST</span> /api/v3/navigation/comprehensive</h4>
+                        <p>Navigate with comprehensive reality awareness</p>
+                    </div>
+                    <div class="api-endpoint">
+                        <h4><span class="api-method post">POST</span> /api/v3/human-safety/monitor</h4>
+                        <p>Monitor human safety with quantum privacy</p>
+                    </div>
+                    <div class="api-endpoint">
+                        <h4><span class="api-method post">POST</span> /api/v3/robot-safety/coordinate</h4>
+                        <p>Coordinate robot safety with human awareness</p>
+                    </div>
+                    <div class="api-endpoint">
+                        <h4><span class="api-method post">POST</span> /api/v3/assets/track-all</h4>
+                        <p>Track all assets including humans, robots, and materials</p>
+                    </div>
+                    <div class="api-endpoint">
+                        <h4><span class="api-method post">POST</span> /api/v3/training/safety-enhanced</h4>
+                        <p>Train with safety and privacy protection</p>
+                    </div>
+                    <div class="api-endpoint">
+                        <h4><span class="api-method get">GET</span> /api/v3/system/status</h4>
+                        <p>Get comprehensive system status</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle functionality
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+
+        // Test functions for Bo-Wei technologies
+        async function testRealityComprehension() {
+            const responseBox = document.getElementById('reality-response');
+            responseBox.style.display = 'block';
+            responseBox.className = 'response-box processing';
+            responseBox.textContent = 'Testing AI Reality Comprehension...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/v3/demo/reality');
+                const data = await response.json();
+                
+                responseBox.className = 'response-box success';
+                responseBox.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseBox.className = 'response-box error';
+                responseBox.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testSupplyChain() {
+            const responseBox = document.getElementById('supply-chain-response');
+            responseBox.style.display = 'block';
+            responseBox.className = 'response-box processing';
+            responseBox.textContent = 'Testing Human-Robot Supply Chain Integration...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/v3/demo/supply-chain');
+                const data = await response.json();
+                
+                responseBox.className = 'response-box success';
+                responseBox.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseBox.className = 'response-box error';
+                responseBox.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testSafetyPrivacy() {
+            const responseBox = document.getElementById('safety-response');
+            responseBox.style.display = 'block';
+            responseBox.className = 'response-box processing';
+            responseBox.textContent = 'Testing Safety & Privacy Protection...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/v3/demo/safety-privacy');
+                const data = await response.json();
+                
+                responseBox.className = 'response-box success';
+                responseBox.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseBox.className = 'response-box error';
+                responseBox.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testNavigation() {
+            const responseBox = document.getElementById('navigation-response');
+            responseBox.style.display = 'block';
+            responseBox.className = 'response-box processing';
+            responseBox.textContent = 'Testing Enhanced Navigation...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/v3/navigate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        vision: [0.1, 0.2, 0.3, 0.4, 0.5],
+                        language: 'Navigate to target safely',
+                        human_agents: {
+                            'human_1': { location: { position: [0, 0, 0] } }
+                        },
+                        robot_agents: {
+                            'robot_1': { current_position: [1, 1, 0] }
+                        }
+                    })
+                });
+                const data = await response.json();
+                
+                responseBox.className = 'response-box success';
+                responseBox.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseBox.className = 'response-box error';
+                responseBox.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Status view functions
+        function viewRealityStatus() {
+            window.open('http://localhost:8000/api/v3/demo/reality', '_blank');
+        }
+
+        function viewSupplyChainStatus() {
+            window.open('http://localhost:8000/api/v3/demo/supply-chain', '_blank');
+        }
+
+        function viewSafetyStatus() {
+            window.open('http://localhost:8000/api/v3/demo/safety-privacy', '_blank');
+        }
+
+        function viewNavigationStatus() {
+            window.open('http://localhost:8000/api/v3/navigation/status', '_blank');
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Enhanced QEP-VLA Dashboard loaded with Bo-Wei Technologies');
+        });
+    </script>
+</body>
+</html>

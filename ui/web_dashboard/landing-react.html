@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QEP-VLA Platform - Quantum-Enhanced Privacy Vision-LiDAR-AI</title>
+    <link rel="stylesheet" href="assets/css/quantum-theme.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.0/dist/framer-motion.js"></script>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        // Make framer-motion available globally
+        window.Motion = window.Motion || window.framerMotion;
+        
+        // Add the cn utility function to window
+        window.cn = function(...classes) {
+            return classes.filter(Boolean).join(" ");
+        };
+
+        // Setup Lucide icons
+        window.LucideIcons = {
+            Home: function(props) {
+                return React.createElement("svg", {
+                    ...props,
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "24",
+                    height: "24",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round"
+                }, React.createElement("path", { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement("polyline", { points: "9,22 9,12 15,12 15,22" }));
+            },
+            FileText: function(props) {
+                return React.createElement("svg", {
+                    ...props,
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "24",
+                    height: "24",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round"
+                }, React.createElement("path", { d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" }), React.createElement("polyline", { points: "14,2 14,8 20,8" }), React.createElement("line", { x1: "16", y1: "13", x2: "8", y2: "13" }), React.createElement("line", { x1: "16", y1: "17", x2: "8", y2: "17" }), React.createElement("polyline", { points: "10,9 9,9 8,9" }));
+            },
+            Briefcase: function(props) {
+                return React.createElement("svg", {
+                    ...props,
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "24",
+                    height: "24",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round"
+                }, React.createElement("rect", { width: "20", height: "14", x: "2", y: "7", rx: "2", ry: "2" }), React.createElement("path", { d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" }));
+            },
+            User: function(props) {
+                return React.createElement("svg", {
+                    ...props,
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "24",
+                    height: "24",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round"
+                }, React.createElement("path", { d: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" }), React.createElement("circle", { cx: "12", cy: "7", r: "4" }));
+            }
+        };
+        
+        // Load components in the correct order
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load components first
+            const loadComponents = async () => {
+                // Create and append script elements to ensure proper loading order
+                const loadScript = (src) => {
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = src;
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                };
+                
+                try {
+                    // Load components in sequence
+                    await loadScript('components/lib/utils.js');
+                    await loadScript('components/ui/button.js');
+                    await loadScript('components/ui/gooey-text-morphing.js');
+                    await loadScript('components/ui/lamp.js');
+                    await loadScript('components/ui/tubelight-navbar.js');
+                    console.log('Components loaded successfully');
+                    console.log('TubelightNavBar component available:', !!window.TubelightNavBar);
+                    console.log('LucideIcons available:', !!window.LucideIcons);
+                    
+                    // Initialize components after they're loaded
+                    initializeComponents();
+                } catch (error) {
+                    console.error('Error loading components:', error);
+                }
+            };
+            
+            // Initialize components after they're loaded
+            const initializeComponents = () => {
+                // Initialize GooeyText
+                if (window.GooeyText) {
+                    const container = document.getElementById('gooey-text-container');
+                    if (container) {
+                        const root = ReactDOM.createRoot(container);
+                        root.render(React.createElement(HeroGooeyText));
+                    }
+                }
+                
+                // Initialize LampContainer
+                if (window.LampContainer) {
+                    const container = document.getElementById('lamp-container');
+                    if (container) {
+                        const root = ReactDOM.createRoot(container);
+                        root.render(React.createElement(CallToActionLamp));
+                    }
+                }
+                
+                // Initialize Tubelight NavBar
+                console.log('Initializing Tubelight NavBar');
+                console.log('TubelightNavBarDemo available:', !!window.TubelightNavBarDemo);
+                console.log('TubelightNavBar available:', !!window.TubelightNavBar);
+                console.log('LucideIcons available:', !!window.LucideIcons);
+                
+                if (window.TubelightNavBarDemo) {
+                    const container = document.getElementById('navbar-container');
+                    console.log('NavBar container found:', !!container);
+                    if (container) {
+                        console.log('Creating root for Tubelight NavBar');
+                        const root = ReactDOM.createRoot(container);
+                        root.render(React.createElement(window.TubelightNavBarDemo));
+                        console.log('Tubelight NavBar rendered successfully');
+                    }
+                } else {
+                    console.error('Tubelight NavBar component not available');
+                    // Show fallback navbar
+                    const fallbackNavbar = document.getElementById('fallback-navbar');
+                    if (fallbackNavbar) {
+                        fallbackNavbar.style.display = 'block';
+                        console.log('Showing fallback navbar');
+                    }
+                    
+                    // Fallback: try to render directly
+                    if (window.TubelightNavBar) {
+                        console.log('Trying to render TubelightNavBar directly');
+                        const container = document.getElementById('navbar-container');
+                        if (container) {
+                            const root = ReactDOM.createRoot(container);
+                            const navItems = [
+                                { name: 'Platform', url: '/enhanced-dashboard.html', icon: window.LucideIcons?.Home },
+                                { name: 'Resources', url: '/ui/web_dashboard/command-center.html', icon: window.LucideIcons?.FileText },
+                                { name: 'Projects', url: '/enhanced-dashboard.html', icon: window.LucideIcons?.Briefcase },
+                                { name: 'Features', url: '/ui/web_dashboard/aria-advanced.html', icon: window.LucideIcons?.User }
+                            ];
+                            root.render(React.createElement(window.TubelightNavBar, { items: navItems }));
+                            console.log('Tubelight NavBar rendered directly');
+                        }
+                    }
+                }
+                
+                // Ensure fallback navbar stays visible
+                const ensureNavbarVisible = () => {
+                    const fallbackNavbar = document.getElementById('fallback-navbar');
+                    if (fallbackNavbar) {
+                        fallbackNavbar.style.display = 'block';
+                        fallbackNavbar.style.visibility = 'visible';
+                        fallbackNavbar.style.opacity = '1';
+                        console.log('Ensuring fallback navbar is visible');
+                    }
+                };
+
+                // Run immediately and periodically
+                ensureNavbarVisible();
+                setInterval(ensureNavbarVisible, 1000);
+
+                // Timeout fallback - show fallback navbar after 3 seconds if React navbar doesn't appear
+                setTimeout(() => {
+                    const navbarContainer = document.getElementById('navbar-container');
+                    const fallbackNavbar = document.getElementById('fallback-navbar');
+                    if (navbarContainer && navbarContainer.children.length === 1 && fallbackNavbar) {
+                        console.log('React navbar not loaded, showing fallback');
+                        fallbackNavbar.style.display = 'block';
+                    }
+                }, 3000);
+            };
+            
+            // Define the components that will be rendered
+            window.HeroGooeyText = function() {
+                return React.createElement(window.GooeyText, {
+                    texts: ["Quantum-Enhanced", "Privacy-Preserving", "Next-Generation", "Secure-by-Design"],
+                    morphTime: 1,
+                    cooldownTime: 2,
+                    textClassName: "font-bold text-white",
+                    className: "h-[120px]"
+                });
+            };
+            
+            window.CallToActionLamp = function() {
+                const motion = window.Motion.motion;
+                return React.createElement(window.LampContainer, null, [
+                    React.createElement(
+                        motion.h1,
+                        {
+                            initial: { opacity: 0.5, y: 100 },
+                            whileInView: { opacity: 1, y: 0 },
+                            transition: {
+                                delay: 0.3,
+                                duration: 0.8,
+                                ease: "easeInOut",
+                            },
+                            className: "mt-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl",
+                            style: {
+                                marginTop: "2rem",
+                                backgroundImage: "linear-gradient(to bottom right, #e2e8f0, #64748b)",
+                                WebkitBackgroundClip: "text",
+                                backgroundClip: "text",
+                                color: "transparent",
+                                padding: "1rem 0",
+                                fontSize: "2.25rem",
+                                fontWeight: "500",
+                                textAlign: "center",
+                                letterSpacing: "-0.025em"
+                            },
+                            key: "title"
+                        },
+                        "Get Started Today"
+                    ),
+                    React.createElement(
+                        motion.div,
+                        {
+                            initial: { opacity: 0, y: 25 },
+                            whileInView: { opacity: 1, y: 0 },
+                            transition: { delay: 0.5, duration: 0.5 },
+                            style: { 
+                                textAlign: "center",
+                                marginTop: "0.5rem",
+                                maxWidth: "600px"
+                            },
+                            key: "content"
+                        },
+                        [
+                            React.createElement(
+                                "h3",
+                                { 
+                                    style: { color: "#ffffff", marginBottom: "0.5rem", fontSize: "1.5rem" },
+                                    key: "subtitle"
+                                },
+                                "Ready to revolutionize autonomous navigation?"
+                            ),
+                            React.createElement(
+                                "p",
+                                { 
+                                    style: { color: "#d1d5db", marginBottom: "1rem" },
+                                    key: "description"
+                                },
+                                "Join the future of secure, intelligent transportation with QEP-VLA Platform."
+                            ),
+                            React.createElement(
+                                "form",
+                                { 
+                                    className: "signup-form", 
+                                    style: { display: "flex", gap: "0.5rem", justifyContent: "center" },
+                                    key: "form"
+                                },
+                                [
+                                    React.createElement(
+                                        "input",
+                                        {
+                                            type: "email",
+                                            placeholder: "Enter your email",
+                                            required: true,
+                                            style: {
+                                                background: "rgba(255,255,255,0.05)",
+                                                border: "1px solid rgba(255,255,255,0.1)",
+                                                color: "#ffffff",
+                                                padding: "0.75rem 1rem",
+                                                borderRadius: "0.5rem",
+                                                width: "250px"
+                                            },
+                                            key: "email"
+                                        }
+                                    ),
+                                    React.createElement(
+                                        "button",
+                                        {
+                                            type: "submit",
+                                            style: {
+                                                background: "#ffffff",
+                                                color: "#000000",
+                                                padding: "0.75rem 1.5rem",
+                                                borderRadius: "0.5rem",
+                                                border: "1px solid #ffffff",
+                                                fontSize: "1rem",
+                                                fontWeight: "600",
+                                                cursor: "pointer",
+                                                transition: "transform 0.2s ease"
+                                            },
+                                            onMouseOver: (e) => e.target.style.transform = "translateY(-2px)",
+                                            onMouseOut: (e) => e.target.style.transform = "translateY(0)",
+                                            key: "submit"
+                                        },
+                                        "Get Early Access"
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                ]);
+            };
+            
+            // Navigation component removed
+            
+            // Start loading components
+            loadComponents();
+        });
+    </script>
+    <style>
+        /* Theme variables */
+        :root {
+            /* Default dark theme variables */
+            --background: #000000;
+            --foreground: #ffffff;
+            --primary: #ffffff;
+            --primary-foreground: #000000;
+            --secondary: rgba(255, 255, 255, 0.1);
+            --secondary-foreground: #ffffff;
+            --muted: rgba(255, 255, 255, 0.1);
+            --muted-foreground: rgba(255, 255, 255, 0.5);
+            --accent: rgba(255, 255, 255, 0.05);
+            --accent-foreground: #ffffff;
+            --border: rgba(255, 255, 255, 0.1);
+            --input: rgba(255, 255, 255, 0.05);
+            --ring: rgba(255, 255, 255, 0.1);
+            --card: rgba(0, 0, 0, 0.8);
+            --card-foreground: #ffffff;
+            --glow-color: rgba(255, 255, 255, 0.8);
+            --hero-bg: #000000;
+            --feature-section-bg: #000000;
+            --tech-section-bg: #000000;
+            --cta-section-bg: #000000;
+            --footer-bg: #000000;
+        }
+
+        /* Light theme variables */
+        .light-theme {
+            --background: #ffffff;
+            --foreground: #000000;
+            --primary: #000000;
+            --primary-foreground: #ffffff;
+            --secondary: rgba(0, 0, 0, 0.1);
+            --secondary-foreground: #000000;
+            --muted: rgba(0, 0, 0, 0.1);
+            --muted-foreground: rgba(0, 0, 0, 0.5);
+            --accent: rgba(0, 0, 0, 0.05);
+            --accent-foreground: #000000;
+            --border: rgba(0, 0, 0, 0.1);
+            --input: rgba(0, 0, 0, 0.05);
+            --ring: rgba(0, 0, 0, 0.1);
+            --card: rgba(240, 240, 240, 0.8);
+            --card-foreground: #000000;
+            --glow-color: rgba(0, 0, 0, 0.8);
+            --hero-bg: #ffffff;
+            --feature-section-bg: #ffffff;
+            --tech-section-bg: #ffffff;
+            --cta-section-bg: #ffffff;
+            --footer-bg: #ffffff;
+        }
+
+        /* Dark theme variables */
+        .dark-theme {
+            --background: #000000;
+            --foreground: #ffffff;
+            --primary: #ffffff;
+            --primary-foreground: #000000;
+            --secondary: rgba(255, 255, 255, 0.1);
+            --secondary-foreground: #ffffff;
+            --muted: rgba(255, 255, 255, 0.1);
+            --muted-foreground: rgba(255, 255, 255, 0.5);
+            --accent: rgba(255, 255, 255, 0.05);
+            --accent-foreground: #ffffff;
+            --border: rgba(255, 255, 255, 0.1);
+            --input: rgba(255, 255, 255, 0.05);
+            --ring: rgba(255, 255, 255, 0.1);
+            --card: rgba(0, 0, 0, 0.8);
+            --card-foreground: #ffffff;
+            --glow-color: rgba(255, 255, 255, 0.8);
+            --hero-bg: #000000;
+            --feature-section-bg: #000000;
+            --tech-section-bg: #000000;
+            --cta-section-bg: #000000;
+            --footer-bg: #000000;
+        }
+
+        /* Apply theme variables to elements */
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .bg-primary {
+            background-color: var(--primary);
+        }
+
+        .text-primary {
+            color: var(--primary);
+        }
+
+        .border-border {
+            border-color: var(--border);
+        }
+
+        .bg-muted {
+            background-color: var(--muted);
+        }
+
+        /* Theme switcher styles */
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes logoShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Gooey Marquee Effect */
+        @keyframes marquee {
+          from { transform: translateX(70%); }
+          to { transform: translateX(-70%); }
+        }
+        .animate-marquee {
+          animation: marquee 16s infinite linear;
+        }
+        
+        .gooey-container {
+          position: relative;
+          width: 100%;
+          height: 6rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          margin-bottom: 1.5rem;
+        }
+        
+        .gooey-blur-layer {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: black;
+          background-image: 
+            linear-gradient(to right, white, 1rem, transparent 50%),
+            linear-gradient(to left, white, 1rem, transparent 50%);
+          filter: contrast(15);
+        }
+        
+        .gooey-text {
+          position: absolute;
+          min-width: 100%;
+          white-space: nowrap;
+          font-size: 3rem;
+          font-weight: 800;
+          animation: marquee 16s infinite linear;
+        }
+        
+        .gooey-blur-text {
+          filter: blur(0.07em);
+        }
+        
+        .gooey-clear-layer {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        /* Interactive 3D card styles - Pure Black & White */
+        .spline-container {
+            background: #000000;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            height: 500px;
+        }
+        
+        .spline-content {
+            display: flex;
+            height: 100%;
+            align-items: center;
+        }
+        
+        .spline-text {
+            flex: 1;
+            padding: 20px;
+            text-align: left;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .spline-scene {
+            flex: 1;
+            height: 100%;
+            position: relative;
+        }
+        
+        .spline-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 20px 0;
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .spline-description {
+            color: #ffffff;
+            max-width: 600px;
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .spotlight {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 80%);
+            filter: blur(20px);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .spline-container:hover .spotlight {
+            opacity: 1;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .spline-content {
+                flex-direction: column;
+            }
+            
+            .spline-title {
+                font-size: 32px;
+            }
+            
+            .spline-description {
+                font-size: 16px;
+            }
+        }
+
+        /* Hide Spline branding badge/watermark */
+        spline-viewer::part(branding),
+        spline-viewer::part(logo),
+        spline-viewer::part(badge),
+        spline-viewer::part(watermark),
+        spline-viewer-badge,
+        #spline-viewer-badge,
+        a[aria-label="Built with Spline"],
+        a[href*="spline.design"][target="_blank"],
+        a[href*="utm_source=spline-viewer"],
+        a[href*="utm_campaign=spline-logo"],
+        a[href*="spline.design"],
+        [class*="spline-badge"],
+        [id*="spline-badge"] {
+            display: none !important;
+        }
+        
+        /* Add padding to body for fixed header */
+        body {
+            padding-top: 80px;
+        }
+        
+        /* Container utility class */
+        .container {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            max-width: 1280px;
+        }
+    </style>
+</head>
+<body style="background: var(--background); color: var(--foreground);">
+    <script>
+        // Apply saved theme on initial load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const themeToApply = savedTheme === 'system' ? systemTheme : savedTheme;
+            document.documentElement.classList.add(`${themeToApply}-theme`);
+        })();
+        
+        // Fallback theme toggle function
+        function toggleTheme() {
+            const root = document.documentElement;
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            let newTheme;
+            
+            // Cycle through themes: dark -> light -> system
+            if (currentTheme === 'dark') {
+                newTheme = 'light';
+            } else if (currentTheme === 'light') {
+                newTheme = 'system';
+            } else {
+                newTheme = 'dark';
+            }
+            
+            // Apply the new theme
+            root.classList.remove('light-theme', 'dark-theme');
+            
+            if (newTheme === 'system') {
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                root.classList.add(`${systemTheme}-theme`);
+            } else {
+                root.classList.add(`${newTheme}-theme`);
+                
+                if (newTheme === 'light') {
+                    document.body.style.background = '#ffffff';
+                    document.body.style.color = '#000000';
+                } else {
+                    document.body.style.background = '#000000';
+                    document.body.style.color = '#ffffff';
+                }
+            }
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Navbar Active State Management
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Remove active class from all items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    navItems.forEach(nav => {
+                        nav.style.background = 'transparent';
+                    });
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    this.style.background = '#ffffff';
+                });
+                
+                // Hover effects
+                item.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.background = 'rgba(255,255,255,0.5)';
+                    }
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.background = 'transparent';
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Quantum Particle Background -->
+    <div id="quantum-particles" style="background: var(--background);"></div>
+    
+    <!-- Standalone Navbar - Always Visible -->
+    <nav id="main-navbar" style="
+        position: fixed !important;
+        top: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 9999 !important;
+        background: #f8f9fa !important;
+        border-radius: 50px !important;
+        padding: 8px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+        display: flex !important;
+        gap: 0 !important;
+        align-items: center !important;
+        min-width: 400px !important;
+        justify-content: center !important;
+    ">
+        <a href="/enhanced-dashboard.html" class="nav-item active" style="
+            color: #000000 !important;
+            text-decoration: none !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            background: #ffffff !important;
+            position: relative !important;
+        ">Platform</a>
+        
+        <a href="/ui/web_dashboard/command-center.html" class="nav-item" style="
+            color: #000000 !important;
+            text-decoration: none !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            background: transparent !important;
+        ">Resources</a>
+        
+        <a href="/enhanced-dashboard.html" class="nav-item" style="
+            color: #000000 !important;
+            text-decoration: none !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            background: transparent !important;
+        ">Projects</a>
+        
+        <a href="/ui/web_dashboard/aria-advanced.html" class="nav-item" style="
+            color: #000000 !important;
+            text-decoration: none !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            background: transparent !important;
+        ">Features</a>
+    </nav>
+
+    <!-- Simple Logo and QEP-VLA in front of navbar -->
+    <div id="logo-header" style="
+        position: fixed !important;
+        top: 5px !important;
+        left: 20px !important;
+        z-index: 10000 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    ">
+        <!-- Simple Logo -->
+        <div style="
+            width: 40px !important;
+            height: 40px !important;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+            border: 2px solid #000000 !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        ">
+            <span style="
+                font-size: 18px !important;
+                font-weight: bold !important;
+                color: #000000 !important;
+                text-shadow: none !important;
+            ">Q</span>
+        </div>
+        
+        <!-- QEP-VLA Text -->
+        <h1 style="
+            margin: 0 !important;
+            font-size: 24px !important;
+            font-weight: 700 !important;
+            color: white !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+            letter-spacing: 1px !important;
+        ">QEP-VLA</h1>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero" style="background: var(--hero-bg); padding: 120px 0 80px;">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title" style="color: var(--foreground);">
+                    <div id="gooey-text-container" style="height: 120px; margin-bottom: 10px; position: relative;"></div>
+                    <span class="hero-sub" style="color: var(--foreground);">Vision-LiDAR-AI Navigation</span>
+                </h1>
+                
+                <!-- GooeyText component is loaded and initialized by the main script -->
+                <p class="hero-description" style="color: var(--foreground);">
+                    Revolutionizing autonomous navigation with quantum computing, 
+                    differential privacy, and advanced AI. Experience the future of 
+                    secure, intelligent transportation.
+                </p>
+                <div class="hero-buttons">
+                    <a href="/enhanced-dashboard.html" 
+                       class="btn btn-primary btn-large" 
+                       data-glow
+                       style="
+                           --base: 220;
+                           --spread: 200;
+                           --radius: 8;
+                           --border: 2;
+                           --backdrop: #ffffff;
+                           --backup-border: #ffffff;
+                           --size: 150;
+                           --outer: 1;
+                           --border-size: calc(var(--border, 2) * 1px);
+                           --spotlight-size: calc(var(--size, 150) * 1px);
+                           --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                           background-image: radial-gradient(
+                               var(--spotlight-size) var(--spotlight-size) at
+                               calc(var(--x, 0) * 1px)
+                               calc(var(--y, 0) * 1px),
+                               hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                               transparent
+                           );
+                           background-color: var(--backdrop, transparent);
+                           background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                           background-position: 50% 50%;
+                           background-attachment: fixed;
+                           border: var(--border-size) solid var(--backup-border);
+                           position: relative;
+                           touch-action: none;
+                           color: #000000;
+                           display: inline-flex;
+                           align-items: center;
+                           padding: 0.75rem 1.5rem;
+                           border-radius: 0.5rem;
+                           font-weight: 600;
+                           text-decoration: none;
+                           transition: transform 0.2s ease;
+                       "
+                       onmouseover="this.style.transform = 'translateY(-2px)'"
+                       onmouseout="this.style.transform = 'translateY(0)'"
+                    >
+                        <div data-glow-inner></div>
+                        <script>
+                            (function() {
+                                const button = document.currentScript.parentElement;
+                                function syncPointer(e) {
+                                    const { clientX: x, clientY: y } = e;
+                                    button.style.setProperty('--x', x.toFixed(2));
+                                    button.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                    button.style.setProperty('--y', y.toFixed(2));
+                                    button.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                                }
+                                document.addEventListener('pointermove', syncPointer);
+                            })();
+                        </script>
+                        <span class="btn-icon" style="position: relative; z-index: 1;">🚀</span>
+                        <span style="position: relative; z-index: 1;">Launch Platform</span>
+                    </a>
+                    <a href="#demo" 
+                       class="btn btn-secondary btn-large" 
+                       data-glow
+                       style="
+                           --base: 280;
+                           --spread: 300;
+                           --radius: 8;
+                           --border: 2;
+                           --backdrop: rgba(255,255,255,0.1);
+                           --backup-border: rgba(255,255,255,0.2);
+                           --size: 150;
+                           --outer: 1;
+                           --border-size: calc(var(--border, 2) * 1px);
+                           --spotlight-size: calc(var(--size, 150) * 1px);
+                           --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                           background-image: radial-gradient(
+                               var(--spotlight-size) var(--spotlight-size) at
+                               calc(var(--x, 0) * 1px)
+                               calc(var(--y, 0) * 1px),
+                               hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                               transparent
+                           );
+                           background-color: var(--backdrop, transparent);
+                           background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                           background-position: 50% 50%;
+                           background-attachment: fixed;
+                           border: var(--border-size) solid var(--backup-border);
+                           position: relative;
+                           touch-action: none;
+                           color: #ffffff;
+                           display: inline-flex;
+                           align-items: center;
+                           padding: 0.75rem 1.5rem;
+                           border-radius: 0.5rem;
+                           font-weight: 600;
+                           text-decoration: none;
+                           transition: transform 0.2s ease;
+                       "
+                       onmouseover="this.style.transform = 'translateY(-2px)'"
+                       onmouseout="this.style.transform = 'translateY(0)'"
+                    >
+                        <div data-glow-inner></div>
+                        <script>
+                            (function() {
+                                const button = document.currentScript.parentElement;
+                                function syncPointer(e) {
+                                    const { clientX: x, clientY: y } = e;
+                                    button.style.setProperty('--x', x.toFixed(2));
+                                    button.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                    button.style.setProperty('--y', y.toFixed(2));
+                                    button.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                                }
+                                document.addEventListener('pointermove', syncPointer);
+                            })();
+                        </script>
+                        <span class="btn-icon" style="position: relative; z-index: 1;">🎥</span>
+                        <span style="position: relative; z-index: 1;">Watch Demo</span>
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="quantum-sphere">
+                    <!-- Pure black and white geometric design -->
+                    <div class="sphere-core" style="background: #ffffff; box-shadow: 0 0 20px rgba(255,255,255,0.1);"></div>
+                    <div class="sphere-rings">
+                        <div class="ring ring-1" style="border-color: #ffffff; opacity: 0.3;"></div>
+                        <div class="ring ring-2" style="border-color: #ffffff; opacity: 0.2;"></div>
+                        <div class="ring ring-3" style="border-color: #ffffff; opacity: 0.1;"></div>
+                    </div>
+                    <div class="quantum-particles">
+                        <div class="particle p1" style="background: #ffffff;"></div>
+                        <div class="particle p2" style="background: #ffffff;"></div>
+                        <div class="particle p3" style="background: #ffffff;"></div>
+                        <div class="particle p4" style="background: #ffffff;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive 3D Section with Spline -->
+    <section id="interactive-3d" class="interactive-3d" style="padding: 80px 0; background: #000000;">
+        <div class="container">
+            <div id="spline-container" class="spline-container">
+                <!-- React component will be rendered here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features" style="background: var(--feature-section-bg); padding: 80px 0;">
+        <div class="container">
+            <h2 class="section-title" style="color: var(--foreground);">Revolutionary Features</h2>
+            <div class="features-grid">
+                <div 
+                    data-glow
+                    class="feature-card rounded-2xl relative p-4"
+                    style="
+                        --base: 220;
+                        --spread: 200;
+                        --radius: 14;
+                        --border: 3;
+                        --backdrop: rgba(255,255,255,0.05);
+                        --backup-border: rgba(255,255,255,0.1);
+                        --size: 200;
+                        --outer: 1;
+                        --border-size: calc(var(--border, 2) * 1px);
+                        --spotlight-size: calc(var(--size, 150) * 1px);
+                        --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                        background-image: radial-gradient(
+                            var(--spotlight-size) var(--spotlight-size) at
+                            calc(var(--x, 0) * 1px)
+                            calc(var(--y, 0) * 1px),
+                            hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                            transparent
+                        );
+                        background-color: var(--backdrop, transparent);
+                        background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                        background-position: 50% 50%;
+                        background-attachment: fixed;
+                        border: var(--border-size) solid var(--backup-border);
+                        position: relative;
+                        touch-action: none;
+                    "
+                >
+                    <div data-glow-inner></div>
+                    <script>
+                        (function() {
+                            const card = document.currentScript.parentElement;
+                            function syncPointer(e) {
+                                const { clientX: x, clientY: y } = e;
+                                card.style.setProperty('--x', x.toFixed(2));
+                                card.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                card.style.setProperty('--y', y.toFixed(2));
+                                card.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                            }
+                            document.addEventListener('pointermove', syncPointer);
+                        })();
+                    </script>
+                    <div class="feature-icon" style="color: #ffffff; position: relative; z-index: 1;">🔒</div>
+                    <h3 style="color: #ffffff; position: relative; z-index: 1;">Quantum Privacy</h3>
+                    <p style="color: #ffffff; position: relative; z-index: 1;">Advanced differential privacy with quantum noise injection and entanglement masking for ultimate data protection.</p>
+                </div>
+                <div 
+                    data-glow
+                    class="feature-card rounded-2xl relative p-4"
+                    style="
+                        --base: 280;
+                        --spread: 300;
+                        --radius: 14;
+                        --border: 3;
+                        --backdrop: rgba(255,255,255,0.05);
+                        --backup-border: rgba(255,255,255,0.1);
+                        --size: 200;
+                        --outer: 1;
+                        --border-size: calc(var(--border, 2) * 1px);
+                        --spotlight-size: calc(var(--size, 150) * 1px);
+                        --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                        background-image: radial-gradient(
+                            var(--spotlight-size) var(--spotlight-size) at
+                            calc(var(--x, 0) * 1px)
+                            calc(var(--y, 0) * 1px),
+                            hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                            transparent
+                        );
+                        background-color: var(--backdrop, transparent);
+                        background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                        background-position: 50% 50%;
+                        background-attachment: fixed;
+                        border: var(--border-size) solid var(--backup-border);
+                        position: relative;
+                        touch-action: none;
+                    "
+                >
+                    <div data-glow-inner></div>
+                    <script>
+                        (function() {
+                            const card = document.currentScript.parentElement;
+                            function syncPointer(e) {
+                                const { clientX: x, clientY: y } = e;
+                                card.style.setProperty('--x', x.toFixed(2));
+                                card.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                card.style.setProperty('--y', y.toFixed(2));
+                                card.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                            }
+                            document.addEventListener('pointermove', syncPointer);
+                        })();
+                    </script>
+                    <div class="feature-icon" style="color: #ffffff; position: relative; z-index: 1;">🧠</div>
+                    <h3 style="color: #ffffff; position: relative; z-index: 1;">AI Navigation</h3>
+                    <p style="color: #ffffff; position: relative; z-index: 1;">State-of-the-art Vision-Language-Action models with sub-50ms inference latency for real-time decision making.</p>
+                </div>
+                <div 
+                    data-glow
+                    class="feature-card rounded-2xl relative p-4"
+                    style="
+                        --base: 120;
+                        --spread: 200;
+                        --radius: 14;
+                        --border: 3;
+                        --backdrop: rgba(255,255,255,0.05);
+                        --backup-border: rgba(255,255,255,0.1);
+                        --size: 200;
+                        --outer: 1;
+                        --border-size: calc(var(--border, 2) * 1px);
+                        --spotlight-size: calc(var(--size, 150) * 1px);
+                        --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                        background-image: radial-gradient(
+                            var(--spotlight-size) var(--spotlight-size) at
+                            calc(var(--x, 0) * 1px)
+                            calc(var(--y, 0) * 1px),
+                            hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                            transparent
+                        );
+                        background-color: var(--backdrop, transparent);
+                        background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                        background-position: 50% 50%;
+                        background-attachment: fixed;
+                        border: var(--border-size) solid var(--backup-border);
+                        position: relative;
+                        touch-action: none;
+                    "
+                >
+                    <div data-glow-inner></div>
+                    <script>
+                        (function() {
+                            const card = document.currentScript.parentElement;
+                            function syncPointer(e) {
+                                const { clientX: x, clientY: y } = e;
+                                card.style.setProperty('--x', x.toFixed(2));
+                                card.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                card.style.setProperty('--y', y.toFixed(2));
+                                card.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                            }
+                            document.addEventListener('pointermove', syncPointer);
+                        })();
+                    </script>
+                    <div class="feature-icon" style="color: #ffffff; position: relative; z-index: 1;">📡</div>
+                    <h3 style="color: #ffffff; position: relative; z-index: 1;">Multi-Sensor Fusion</h3>
+                    <p style="color: #ffffff; position: relative; z-index: 1;">Advanced LiDAR, camera, and quantum sensor integration for comprehensive environmental perception.</p>
+                </div>
+                <div 
+                    data-glow
+                    class="feature-card rounded-2xl relative p-4"
+                    style="
+                        --base: 0;
+                        --spread: 200;
+                        --radius: 14;
+                        --border: 3;
+                        --backdrop: rgba(255,255,255,0.05);
+                        --backup-border: rgba(255,255,255,0.1);
+                        --size: 200;
+                        --outer: 1;
+                        --border-size: calc(var(--border, 2) * 1px);
+                        --spotlight-size: calc(var(--size, 150) * 1px);
+                        --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                        background-image: radial-gradient(
+                            var(--spotlight-size) var(--spotlight-size) at
+                            calc(var(--x, 0) * 1px)
+                            calc(var(--y, 0) * 1px),
+                            hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                            transparent
+                        );
+                        background-color: var(--backdrop, transparent);
+                        background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                        background-position: 50% 50%;
+                        background-attachment: fixed;
+                        border: var(--border-size) solid var(--backup-border);
+                        position: relative;
+                        touch-action: none;
+                    "
+                >
+                    <div data-glow-inner></div>
+                    <script>
+                        (function() {
+                            const card = document.currentScript.parentElement;
+                            function syncPointer(e) {
+                                const { clientX: x, clientY: y } = e;
+                                card.style.setProperty('--x', x.toFixed(2));
+                                card.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                card.style.setProperty('--y', y.toFixed(2));
+                                card.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                            }
+                            document.addEventListener('pointermove', syncPointer);
+                        })();
+                    </script>
+                    <div class="feature-icon" style="color: #ffffff; position: relative; z-index: 1;">🌐</div>
+                    <h3 style="color: #ffffff; position: relative; z-index: 1;">Federated Learning</h3>
+                    <p style="color: #ffffff; position: relative; z-index: 1;">Secure, privacy-preserving model training across distributed networks without data sharing.</p>
+                </div>
+                <div 
+                    data-glow
+                    class="feature-card rounded-2xl relative p-4"
+                    style="
+                        --base: 30;
+                        --spread: 200;
+                        --radius: 14;
+                        --border: 3;
+                        --backdrop: rgba(255,255,255,0.05);
+                        --backup-border: rgba(255,255,255,0.1);
+                        --size: 200;
+                        --outer: 1;
+                        --border-size: calc(var(--border, 2) * 1px);
+                        --spotlight-size: calc(var(--size, 150) * 1px);
+                        --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                        background-image: radial-gradient(
+                            var(--spotlight-size) var(--spotlight-size) at
+                            calc(var(--x, 0) * 1px)
+                            calc(var(--y, 0) * 1px),
+                            hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                            transparent
+                        );
+                        background-color: var(--backdrop, transparent);
+                        background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                        background-position: 50% 50%;
+                        background-attachment: fixed;
+                        border: var(--border-size) solid var(--backup-border);
+                        position: relative;
+                        touch-action: none;
+                    "
+                >
+                    <div data-glow-inner></div>
+                    <script>
+                        (function() {
+                            const card = document.currentScript.parentElement;
+                            function syncPointer(e) {
+                                const { clientX: x, clientY: y } = e;
+                                card.style.setProperty('--x', x.toFixed(2));
+                                card.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                card.style.setProperty('--y', y.toFixed(2));
+                                card.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                            }
+                            document.addEventListener('pointermove', syncPointer);
+                        })();
+                    </script>
+                    <div class="feature-icon" style="color: #ffffff; position: relative; z-index: 1;">⚡</div>
+                    <h3 style="color: #ffffff; position: relative; z-index: 1;">Edge Computing</h3>
+                    <p style="color: #ffffff; position: relative; z-index: 1;">Adaptive edge inference with dynamic model compression for optimal performance on any device.</p>
+                </div>
+                <div 
+                    data-glow
+                    class="feature-card rounded-2xl relative p-4"
+                    style="
+                        --base: 220;
+                        --spread: 200;
+                        --radius: 14;
+                        --border: 3;
+                        --backdrop: rgba(255,255,255,0.05);
+                        --backup-border: rgba(255,255,255,0.1);
+                        --size: 200;
+                        --outer: 1;
+                        --border-size: calc(var(--border, 2) * 1px);
+                        --spotlight-size: calc(var(--size, 150) * 1px);
+                        --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                        background-image: radial-gradient(
+                            var(--spotlight-size) var(--spotlight-size) at
+                            calc(var(--x, 0) * 1px)
+                            calc(var(--y, 0) * 1px),
+                            hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                            transparent
+                        );
+                        background-color: var(--backdrop, transparent);
+                        background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                        background-position: 50% 50%;
+                        background-attachment: fixed;
+                        border: var(--border-size) solid var(--backup-border);
+                        position: relative;
+                        touch-action: none;
+                    "
+                >
+                    <div data-glow-inner></div>
+                    <script>
+                        (function() {
+                            const card = document.currentScript.parentElement;
+                            function syncPointer(e) {
+                                const { clientX: x, clientY: y } = e;
+                                card.style.setProperty('--x', x.toFixed(2));
+                                card.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                card.style.setProperty('--y', y.toFixed(2));
+                                card.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                            }
+                            document.addEventListener('pointermove', syncPointer);
+                        })();
+                    </script>
+                    <div class="feature-icon" style="color: #ffffff; position: relative; z-index: 1;">📊</div>
+                    <h3 style="color: #ffffff; position: relative; z-index: 1;">Real-time Analytics</h3>
+                    <p style="color: #ffffff; position: relative; z-index: 1;">Comprehensive monitoring and analytics dashboard with live performance metrics and fleet management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="technology" class="technology" style="background: var(--tech-section-bg); padding: 80px 0;">
+        <div class="container">
+            <div class="gooey-container">
+                <div class="gooey-blur-layer">
+                    <p class="gooey-text gooey-blur-text">Cutting-Edge Technology</p>
+                </div>
+                <div class="gooey-clear-layer">
+                    <p class="gooey-text">Cutting-Edge Technology</p>
+                </div>
+            </div>
+            <div class="tech-showcase">
+                <div 
+                    data-glow
+                    class="tech-item rounded-2xl relative p-4"
+                    style="
+                        --base: 220;
+                        --spread: 200;
+                        --radius: 14;
+                        --border: 3;
+                        --backdrop: rgba(255,255,255,0.05);
+                        --backup-border: rgba(255,255,255,0.1);
+                        --size: 200;
+                        --outer: 1;
+                        --border-size: calc(var(--border, 2) * 1px);
+                        --spotlight-size: calc(var(--size, 150) * 1px);
+                        --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                        background-image: radial-gradient(
+                            var(--spotlight-size) var(--spotlight-size) at
+                            calc(var(--x, 0) * 1px)
+                            calc(var(--y, 0) * 1px),
+                            hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                            transparent
+                        );
+                        background-color: var(--backdrop, transparent);
+                        background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                        background-position: 50% 50%;
+                        background-attachment: fixed;
+                        border: var(--border-size) solid var(--backup-border);
+                        position: relative;
+                        touch-action: none;
+                    "
+                >
+                    <div data-glow-inner></div>
+                    <script>
+                        (function() {
+                            const card = document.currentScript.parentElement;
+                            function syncPointer(e) {
+                                const { clientX: x, clientY: y } = e;
+                                card.style.setProperty('--x', x.toFixed(2));
+                                card.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                card.style.setProperty('--y', y.toFixed(2));
+                                card.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                            }
+                            document.addEventListener('pointermove', syncPointer);
+                        })();
+                    </script>
+                    <h3 style="color: #ffffff; position: relative; z-index: 1;">Quantum Computing</h3>
+                    <p style="color: #ffffff; position: relative; z-index: 1;">Leveraging quantum superposition and entanglement for enhanced privacy and computational power.</p>
+                    <div class="tech-metrics" style="position: relative; z-index: 1;">
+                        <span 
+                            data-glow
+                            class="metric rounded-2xl"
+                            style="
+                                --base: 220;
+                                --spread: 200;
+                                --radius: 8;
+                                --border: 2;
+                                --backdrop: #ffffff;
+                                --backup-border: #ffffff;
+                                --size: 100;
+                                --outer: 1;
+                                --border-size: calc(var(--border, 2) * 1px);
+                                --spotlight-size: calc(var(--size, 150) * 1px);
+                                --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                                background-image: radial-gradient(
+                                    var(--spotlight-size) var(--spotlight-size) at
+                                    calc(var(--x, 0) * 1px)
+                                    calc(var(--y, 0) * 1px),
+                                    hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                                    transparent
+                                );
+                                background-color: var(--backdrop, transparent);
+                                background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                                background-position: 50% 50%;
+                                background-attachment: fixed;
+                                border: var(--border-size) solid var(--backup-border);
+                                position: relative;
+                                touch-action: none;
+                                color: #000000;
+                                padding: 0.25rem 0.75rem;
+                                border-radius: 0.5rem;
+                                font-size: 0.875rem;
+                                font-weight: 600;
+                                display: inline-block;
+                            "
+                        >
+                            <div data-glow-inner></div>
+                            <script>
+                                (function() {
+                                    const badge = document.currentScript.parentElement;
+                                    function syncPointer(e) {
+                                        const { clientX: x, clientY: y } = e;
+                                        badge.style.setProperty('--x', x.toFixed(2));
+                                        badge.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                        badge.style.setProperty('--y', y.toFixed(2));
+                                        badge.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                                    }
+                                    document.addEventListener('pointermove', syncPointer);
+                                })();
+                            </script>
+                            <span style="position: relative; z-index: 1;">2.3x Enhancement</span>
+                        </span>
+                        <span 
+                            data-glow
+                            class="metric rounded-2xl"
+                            style="
+                                --base: 220;
+                                --spread: 200;
+                                --radius: 8;
+                                --border: 2;
+                                --backdrop: #ffffff;
+                                --backup-border: #ffffff;
+                                --size: 100;
+                                --outer: 1;
+                                --border-size: calc(var(--border, 2) * 1px);
+                                --spotlight-size: calc(var(--size, 150) * 1px);
+                                --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                                background-image: radial-gradient(
+                                    var(--spotlight-size) var(--spotlight-size) at
+                                    calc(var(--x, 0) * 1px)
+                                    calc(var(--y, 0) * 1px),
+                                    hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                                    transparent
+                                );
+                                background-color: var(--backdrop, transparent);
+                                background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                                background-position: 50% 50%;
+                                background-attachment: fixed;
+                                border: var(--border-size) solid var(--backup-border);
+                                position: relative;
+                                touch-action: none;
+                                color: #000000;
+                                padding: 0.25rem 0.75rem;
+                                border-radius: 0.5rem;
+                                font-size: 0.875rem;
+                                font-weight: 600;
+                                display: inline-block;
+                            "
+                        >
+                            <div data-glow-inner></div>
+                            <script>
+                                (function() {
+                                    const badge = document.currentScript.parentElement;
+                                    function syncPointer(e) {
+                                        const { clientX: x, clientY: y } = e;
+                                        badge.style.setProperty('--x', x.toFixed(2));
+                                        badge.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                        badge.style.setProperty('--y', y.toFixed(2));
+                                        badge.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                                    }
+                                    document.addEventListener('pointermove', syncPointer);
+                                })();
+                            </script>
+                            <span style="position: relative; z-index: 1;">ε=0.1 Privacy</span>
+                        </span>
+                        <span 
+                            data-glow
+                            class="metric rounded-2xl"
+                            style="
+                                --base: 220;
+                                --spread: 200;
+                                --radius: 8;
+                                --border: 2;
+                                --backdrop: #ffffff;
+                                --backup-border: #ffffff;
+                                --size: 100;
+                                --outer: 1;
+                                --border-size: calc(var(--border, 2) * 1px);
+                                --spotlight-size: calc(var(--size, 150) * 1px);
+                                --hue: calc(var(--base) + (var(--xp, 0) * var(--spread, 0)));
+                                background-image: radial-gradient(
+                                    var(--spotlight-size) var(--spotlight-size) at
+                                    calc(var(--x, 0) * 1px)
+                                    calc(var(--y, 0) * 1px),
+                                    hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 70) * 1%), var(--bg-spot-opacity, 0.1)), 
+                                    transparent
+                                );
+                                background-color: var(--backdrop, transparent);
+                                background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+                                background-position: 50% 50%;
+                                background-attachment: fixed;
+                                border: var(--border-size) solid var(--backup-border);
+                                position: relative;
+                                touch-action: none;
+                                color: #000000;
+                                padding: 0.25rem 0.75rem;
+                                border-radius: 0.5rem;
+                                font-size: 0.875rem;
+                                font-weight: 600;
+                                display: inline-block;
+                            "
+                        >
+                            <div data-glow-inner></div>
+                            <script>
+                                (function() {
+                                    const badge = document.currentScript.parentElement;
+                                    function syncPointer(e) {
+                                        const { clientX: x, clientY: y } = e;
+                                        badge.style.setProperty('--x', x.toFixed(2));
+                                        badge.style.setProperty('--xp', (x / window.innerWidth).toFixed(2));
+                                        badge.style.setProperty('--y', y.toFixed(2));
+                                        badge.style.setProperty('--yp', (y / window.innerHeight).toFixed(2));
+                                    }
+                                    document.addEventListener('pointermove', syncPointer);
+                                })();
+                            </script>
+                            <span style="position: relative; z-index: 1;">97.3% Accuracy</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="tech-item" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: #ffffff;">Differential Privacy</h3>
+                    <p style="color: #ffffff;">Mathematically proven privacy guarantees with configurable privacy budgets and noise mechanisms.</p>
+                    <div class="tech-metrics">
+                        <span class="metric" style="background: #ffffff; color: #000000;">GDPR Compliant</span>
+                        <span class="metric" style="background: #ffffff; color: #000000;">Zero Data Leakage</span>
+                        <span class="metric" style="background: #ffffff; color: #000000;">Audit Trail</span>
+                    </div>
+                </div>
+                <div class="tech-item" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: #ffffff;">Advanced AI</h3>
+                    <p style="color: #ffffff;">Transformer-based models with multi-modal fusion for robust navigation in complex environments.</p>
+                    <div class="tech-metrics">
+                        <span class="metric" style="background: #ffffff; color: #000000;">Sub-50ms Latency</span>
+                        <span class="metric" style="background: #ffffff; color: #000000;">Multi-Modal</span>
+                        <span class="metric" style="background: #ffffff; color: #000000;">Real-time</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Revolutionary Technology Section -->
+    <section style="padding: 80px 0; background: #000000; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 0 20px;">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <div class="gooey-container">
+                    <div class="gooey-blur-layer">
+                        <p class="gooey-text gooey-blur-text">Revolutionary Technology</p>
+                    </div>
+                    <div class="gooey-clear-layer">
+                        <p class="gooey-text">Revolutionary Technology</p>
+                    </div>
+                </div>
+                <p style="color: #d1d5db; font-size: 1.125rem; line-height: 1.6; margin-bottom: 40px;">
+                    QEP-VLA represents a breakthrough in autonomous navigation, combining quantum computing, 
+                    differential privacy, and advanced AI for unprecedented security, accuracy, and environmental awareness.
+                </p>
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-width: 200px;">
+                        <h3 style="color: #ffffff; margin-bottom: 10px;">Quantum-Enhanced</h3>
+                        <p style="color: #9ca3af; font-size: 0.9rem;">Secure computation with quantum-resistant encryption</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-width: 200px;">
+                        <h3 style="color: #ffffff; margin-bottom: 10px;">LiDAR Integration</h3>
+                        <p style="color: #9ca3af; font-size: 0.9rem;">High-precision spatial mapping and obstacle detection</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-width: 200px;">
+                        <h3 style="color: #ffffff; margin-bottom: 10px;">Privacy-First</h3>
+                        <p style="color: #9ca3af; font-size: 0.9rem;">Differential privacy for secure data handling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section with Lamp Effect -->
+    <section id="contact" class="contact" style="background: var(--cta-section-bg); padding: 0;">
+    
+    <!-- Call to action section with direct HTML implementation instead of React -->
+    <style>
+        /* Glow Card/Spotlight Card styles */
+        [data-glow]::before,
+        [data-glow]::after {
+            pointer-events: none;
+            content: "";
+            position: absolute;
+            inset: calc(var(--border-size) * -1);
+            border: var(--border-size) solid transparent;
+            border-radius: calc(var(--radius) * 1px);
+            background-attachment: fixed;
+            background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+            background-repeat: no-repeat;
+            background-position: 50% 50%;
+            mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+            -webkit-mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+            mask-clip: padding-box, border-box;
+            -webkit-mask-clip: padding-box, border-box;
+            mask-composite: intersect;
+            -webkit-mask-composite: source-in;
+        }
+        
+        [data-glow]::before {
+            background-image: radial-gradient(
+                calc(var(--spotlight-size) * 0.75) calc(var(--spotlight-size) * 0.75) at
+                calc(var(--x, 0) * 1px)
+                calc(var(--y, 0) * 1px),
+                hsla(var(--hue, 210), calc(var(--saturation, 100) * 1%), calc(var(--lightness, 50) * 1%), var(--border-spot-opacity, 1)), transparent 100%
+            );
+            filter: brightness(2);
+        }
+        
+        [data-glow]::after {
+            background-image: radial-gradient(
+                calc(var(--spotlight-size) * 0.5) calc(var(--spotlight-size) * 0.5) at
+                calc(var(--x, 0) * 1px)
+                calc(var(--y, 0) * 1px),
+                hsla(0, 100%, 100%, var(--border-light-opacity, 1)), transparent 100%
+            );
+        }
+        
+        [data-glow] [data-glow-inner] {
+            position: absolute;
+            inset: 0;
+            will-change: filter;
+            opacity: var(--outer, 1);
+            border-radius: calc(var(--radius) * 1px);
+            border-width: calc(var(--border-size) * 20);
+            filter: blur(calc(var(--border-size) * 10));
+            background: none;
+            pointer-events: none;
+            border: none;
+        }
+        
+        [data-glow] > [data-glow-inner]::before {
+            content: "";
+            position: absolute;
+            inset: -10px;
+            border-width: 10px;
+        }
+        
+        /* Gooey Text Morphing styles */
+        .text-6xl {
+            font-size: 3.75rem;
+        }
+        .md\:text-\[60pt\] {
+            font-size: 60pt;
+        }
+        .text-foreground {
+            color: white;
+        }
+        .font-bold {
+            font-weight: 700;
+        }
+        .select-none {
+            user-select: none;
+        }
+        .inline-block {
+            display: inline-block;
+        }
+        .h-\[120px\] {
+            height: 120px;
+        }
+        .h-0 {
+            height: 0;
+        }
+        .w-0 {
+            width: 0;
+        }
+        
+        /* Tubelight Navbar Styles */
+        .bg-background\/5 {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .border-border {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .backdrop-blur-lg {
+            backdrop-filter: blur(16px);
+        }
+        .text-foreground\/80 {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .text-primary {
+            color: white;
+        }
+        .hover\:text-primary:hover {
+            color: white;
+        }
+        .bg-primary\/5 {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .bg-primary {
+            background-color: white;
+        }
+        .bg-primary\/20 {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .bg-muted {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Tubelight NavBar styles */
+        .navbar-custom {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #navbar-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        #navbar-container > * {
+            pointer-events: auto;
+        }
+
+        #fallback-navbar {
+            display: block !important;
+            position: fixed !important;
+            top: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 1001 !important;
+            background: rgba(255,255,255,0.1) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 9999px !important;
+            padding: 8px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* Prevent any other styles from hiding the navbar */
+        #fallback-navbar[style*="display: none"] {
+            display: block !important;
+        }
+
+        #fallback-navbar[style*="visibility: hidden"] {
+            visibility: visible !important;
+        }
+
+        #fallback-navbar[style*="opacity: 0"] {
+            opacity: 1 !important;
+        }
+
+        /* Tubelight NavBar specific styles */
+        .fixed {
+            position: fixed;
+        }
+
+        .bottom-0 {
+            bottom: 0;
+        }
+
+        .sm\:top-0 {
+            top: 0;
+        }
+
+        .left-1\/2 {
+            left: 50%;
+        }
+
+        .-translate-x-1\/2 {
+            transform: translateX(-50%);
+        }
+
+        .z-50 {
+            z-index: 50;
+        }
+
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+
+        .sm\:pt-6 {
+            padding-top: 1.5rem;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .gap-3 {
+            gap: 0.75rem;
+        }
+
+        .bg-background\/5 {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .border {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .border-border {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .backdrop-blur-lg {
+            backdrop-filter: blur(16px);
+        }
+
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+
+        .px-1 {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+        }
+
+        .rounded-full {
+            border-radius: 9999px;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .px-6 {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .transition-colors {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        .text-foreground\/80 {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .hover\:text-primary:hover {
+            color: #ffffff;
+        }
+
+        .bg-muted {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .text-primary {
+            color: #ffffff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .md\:inline {
+            display: inline;
+        }
+
+        .md\:hidden {
+            display: none;
+        }
+
+        .absolute {
+            position: absolute;
+        }
+
+        .inset-0 {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .bg-primary\/5 {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .-z-10 {
+            z-index: -10;
+        }
+
+        .-top-2 {
+            top: -0.5rem;
+        }
+
+        .w-8 {
+            width: 2rem;
+        }
+
+        .h-1 {
+            height: 0.25rem;
+        }
+
+        .bg-primary {
+            background-color: #ffffff;
+        }
+
+        .rounded-t-full {
+            border-top-left-radius: 9999px;
+            border-top-right-radius: 9999px;
+        }
+
+        .w-12 {
+            width: 3rem;
+        }
+
+        .h-6 {
+            height: 1.5rem;
+        }
+
+        .bg-primary\/20 {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .blur-md {
+            filter: blur(12px);
+        }
+
+        .-left-2 {
+            left: -0.5rem;
+        }
+
+        .-top-1 {
+            top: -0.25rem;
+        }
+
+        .w-4 {
+            width: 1rem;
+        }
+
+        .h-4 {
+            height: 1rem;
+        }
+
+        .blur-sm {
+            filter: blur(4px);
+        }
+
+        .top-0 {
+            top: 0;
+        }
+
+        .left-2 {
+            left: 0.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .md\:inline {
+                display: inline;
+            }
+            .md\:hidden {
+                display: none;
+            }
+        }
+        .top-0 {
+            top: 0;
+        }
+        .bottom-0 {
+            bottom: 0;
+        }
+        .left-1\/2 {
+            left: 50%;
+        }
+        .-translate-x-1\/2 {
+            transform: translateX(-50%);
+        }
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        .pt-6 {
+            padding-top: 1.5rem;
+        }
+        .gap-3 {
+            gap: 0.75rem;
+        }
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        .px-1 {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+        }
+        .rounded-full {
+            border-radius: 9999px;
+        }
+        .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        .font-semibold {
+            font-weight: 600;
+        }
+        .px-6 {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .transition-colors {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
+        .blur-md {
+            --tw-blur: blur(12px);
+            filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+        }
+        .blur-sm {
+            --tw-blur: blur(4px);
+            filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+        }
+        
+        @media (min-width: 768px) {
+            .md\:inline {
+                display: inline;
+            }
+            .md\:hidden {
+                display: none;
+            }
+        }
+        
+        /* Utility classes for Tailwind-like styling */
+        .rounded-2xl {
+            border-radius: 1rem;
+        }
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+        .relative {
+            position: relative;
+        }
+        .absolute {
+            position: absolute;
+        }
+        .inset-auto {
+            inset: auto;
+        }
+        .grid {
+            display: grid;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-col {
+            flex-direction: column;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-center {
+            justify-content: center;
+        }
+        .isolate {
+            isolation: isolate;
+        }
+        .p-4 {
+            padding: 1rem;
+        }
+        .px-5 {
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+        }
+        .py-4 {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .mt-8 {
+            margin-top: 2rem;
+        }
+        .gap-4 {
+            gap: 1rem;
+        }
+        .backdrop-blur-\[5px\] {
+            backdrop-filter: blur(5px);
+        }
+        .backdrop-blur-md {
+            backdrop-filter: blur(12px);
+        }
+        .blur-2xl {
+            filter: blur(40px);
+        }
+        .blur-3xl {
+            filter: blur(64px);
+        }
+        .w-48 {
+            width: 12rem;
+        }
+        .h-64 {
+            height: 16rem;
+        }
+        .w-64 {
+            width: 16rem;
+        }
+        .h-80 {
+            height: 20rem;
+        }
+        .w-80 {
+            width: 20rem;
+        }
+        .h-96 {
+            height: 24rem;
+        }
+        .h-56 {
+            height: 14rem;
+        }
+        .h-48 {
+            height: 12rem;
+        }
+        .h-44 {
+            height: 11rem;
+        }
+        .h-40 {
+            height: 10rem;
+        }
+        .h-36 {
+            height: 9rem;
+        }
+        .h-0\.5 {
+            height: 0.125rem;
+        }
+        .w-\[30rem\] {
+            width: 30rem;
+        }
+        .w-\[28rem\] {
+            width: 28rem;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .min-h-screen {
+            min-height: 100vh;
+        }
+        .overflow-hidden {
+            overflow: hidden;
+        }
+        .overflow-visible {
+            overflow: visible;
+        }
+        .aspect-\[3\/4\] {
+            aspect-ratio: 3/4;
+        }
+        .grid-rows-\[1fr_auto\] {
+            grid-template-rows: 1fr auto;
+        }
+        .shadow-\[0_1rem_2rem_-1rem_black\] {
+            box-shadow: 0 1rem 2rem -1rem black;
+        }
+        .scale-y-125 {
+            transform: scaleY(1.25);
+        }
+        .scale-x-150 {
+            transform: scaleX(1.5);
+        }
+        .translate-y-12 {
+            transform: translateY(3rem);
+        }
+        .-translate-y-\[6rem\] {
+            transform: translateY(-6rem);
+        }
+        .-translate-y-\[7rem\] {
+            transform: translateY(-7rem);
+        }
+        .-translate-y-\[12\.5rem\] {
+            transform: translateY(-12.5rem);
+        }
+        .-translate-y-80 {
+            transform: translateY(-20rem);
+        }
+        .-translate-y-1\/2 {
+            transform: translateY(-50%);
+        }
+        .z-0 {
+            z-index: 0;
+        }
+        .z-10 {
+            z-index: 10;
+        }
+        .z-20 {
+            z-index: 20;
+        }
+        .z-30 {
+            z-index: 30;
+        }
+        .z-40 {
+            z-index: 40;
+        }
+        .z-50 {
+            z-index: 50;
+        }
+        .opacity-10 {
+            opacity: 0.1;
+        }
+        .opacity-50 {
+            opacity: 0.5;
+        }
+        .text-white {
+            color: white;
+        }
+        .text-transparent {
+            color: transparent;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-4xl {
+            font-size: 2.25rem;
+        }
+        .font-medium {
+            font-weight: 500;
+        }
+        .tracking-tight {
+            letter-spacing: -0.025em;
+        }
+        .bg-slate-950 {
+            background-color: #020617;
+        }
+        .bg-cyan-400 {
+            background-color: #22d3ee;
+        }
+        .bg-cyan-500 {
+            background-color: #06b6d4;
+        }
+        .bg-gradient-conic {
+            background-image: conic-gradient(var(--tw-gradient-stops));
+        }
+        .from-cyan-500 {
+            --tw-gradient-from: #06b6d4 var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(6 182 212 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        .via-transparent {
+            --tw-gradient-to: rgb(0 0 0 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), transparent var(--tw-gradient-via-position), var(--tw-gradient-to);
+        }
+        .to-transparent {
+            --tw-gradient-to: transparent var(--tw-gradient-to-position);
+        }
+        .bg-gradient-to-br {
+            background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+        }
+        .from-slate-300 {
+            --tw-gradient-from: #e2e8f0 var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(226 232 240 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        .to-slate-500 {
+            --tw-gradient-to: #64748b var(--tw-gradient-to-position);
+        }
+        .bg-clip-text {
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        .rounded-full {
+            border-radius: 9999px;
+        }
+        @media (min-width: 768px) {
+            .md\:text-7xl {
+                font-size: 5rem;
+            }
+        }
+        .\[--conic-position\:from_70deg_at_center_top\] {
+            --conic-position: from 70deg at center top;
+        }
+        .\[--conic-position\:from_290deg_at_center_top\] {
+            --conic-position: from 290deg at center top;
+        }
+        .\[mask-image\:linear-gradient\(to_top\,white\,transparent\)\] {
+            -webkit-mask-image: linear-gradient(to top, white, transparent);
+            mask-image: linear-gradient(to top, white, transparent);
+        }
+        .\[mask-image\:linear-gradient\(to_right\,white\,transparent\)\] {
+            -webkit-mask-image: linear-gradient(to right, white, transparent);
+            mask-image: linear-gradient(to right, white, transparent);
+        }
+        .\[mask-image\:linear-gradient\(to_left\,white\,transparent\)\] {
+            -webkit-mask-image: linear-gradient(to left, white, transparent);
+            mask-image: linear-gradient(to left, white, transparent);
+        }
+        
+        /* Lamp container styles */
+        #lamp-container {
+            min-height: 100vh;
+            width: 100%;
+        }
+    </style>
+    
+    <div id="lamp-container"></div>
+    
+    <!-- LampContainer component is loaded and initialized by the main script -->
+    <!-- Footer -->
+    <footer class="footer" style="background: var(--footer-bg); border-top: 1px solid var(--border);">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4 style="color: var(--foreground);">QEP-VLA Platform</h4>
+                    <p style="color: var(--foreground);">Quantum-Enhanced Privacy Vision-LiDAR-AI Navigation</p>
+                </div>
+                <div class="footer-section">
+                    <h4 style="color: var(--foreground);">Technology</h4>
+                    <ul>
+                        <li><a href="#" style="color: var(--foreground);">Quantum Computing</a></li>
+                        <li><a href="#" style="color: var(--foreground);">Differential Privacy</a></li>
+                        <li><a href="#" style="color: var(--foreground);">AI Navigation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 style="color: var(--foreground);">Resources</h4>
+                    <ul>
+                        <li><a href="#" style="color: var(--foreground);">Documentation</a></li>
+                        <li><a href="#" style="color: var(--foreground);">API Reference</a></li>
+                        <li><a href="#" style="color: var(--foreground);">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 style="color: var(--foreground);">Company</h4>
+                    <ul>
+                        <li><a href="#" style="color: var(--foreground);">About</a></li>
+                        <li><a href="#" style="color: var(--foreground);">Careers</a></li>
+                        <li><a href="#" style="color: var(--foreground);">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom" style="border-top: 1px solid var(--border);">
+                <p style="color: var(--foreground);">&copy; 2025 QEP-VLA Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/quantum-viz.js"></script>
+    <script src="assets/js/quantum-loader.js"></script>
+    
+    <!-- React Component for Spline Scene -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        function SplineSceneComponent() {
+            const [isLoaded, setIsLoaded] = useState(false);
+            const containerRef = useRef(null);
+            const sceneHostRef = useRef(null);
+            
+            useEffect(() => {
+                // Mark loaded after short delay for smooth entrance
+                const timer = setTimeout(() => setIsLoaded(true), 400);
+
+                // Mount Spline Web Component manually to avoid React/custom-elements quirks
+                const mountViewer = () => {
+                    if (!sceneHostRef.current) return;
+                    if (!sceneHostRef.current.querySelector('spline-viewer')) {
+                        const viewer = document.createElement('spline-viewer');
+                        viewer.setAttribute('url', 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode');
+                        viewer.setAttribute('loading-anim', '');
+                        viewer.style.width = '100%';
+                        viewer.style.height = '100%';
+                        viewer.style.borderRadius = '8px';
+                        viewer.style.overflow = 'hidden';
+                        sceneHostRef.current.appendChild(viewer);
+                    }
+                };
+
+                if (customElements.get('spline-viewer')) {
+                    mountViewer();
+                } else {
+                    // Wait for the module to register the custom element
+                    const readyCheck = setInterval(() => {
+                        if (customElements.get('spline-viewer')) {
+                            clearInterval(readyCheck);
+                            mountViewer();
+                        }
+                    }, 150);
+                    setTimeout(() => clearInterval(readyCheck), 5000);
+                }
+
+                return () => clearTimeout(timer);
+            }, []);
+            
+            return (
+                <div className="spline-content">
+                    <div className="spline-scene" ref={sceneHostRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}></div>
+                    <div className="spline-text">
+                        <div className="gooey-container">
+                            <div className="gooey-blur-layer">
+                                <p className="gooey-text gooey-blur-text">Interactive 3D</p>
+                            </div>
+                            <div className="gooey-clear-layer">
+                                <p className="gooey-text">Interactive 3D</p>
+                            </div>
+                        </div>
+                        <p className="spline-description">
+                            Experience the future of autonomous navigation with QEP-VLA. Our quantum-enhanced privacy-preserving platform delivers superior spatial awareness, real-time object recognition, and secure LiDAR-based mapping for next-generation robotic systems.
+                        </p>
+                    </div>
+                    <div className="spotlight" style={{ 
+                        top: '-40px', 
+                        left: '40%',
+                        transform: 'translateX(-50%)'
+                    }}></div>
+                </div>
+            );
+        }
+        
+        // Render the component
+        const container = document.getElementById('spline-container');
+        const root = ReactDOM.createRoot(container);
+        root.render(<SplineSceneComponent />);
+    </script>
+    
+    <script>
+        // Aggressively remove any Spline branding badge if injected
+        (function removeSplineBadge(){
+          const selectors = [
+            'spline-viewer-badge',
+            '#spline-viewer-badge',
+            'a[aria-label="Built with Spline"]',
+            'a[href*="spline.design"][target="_blank"]',
+            'a[href*="utm_source=spline-viewer"]',
+            'a[href*="utm_campaign=spline-logo"]'
+          ];
+          const removeAll = () => {
+            selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => el.remove()));
+            // Remove by text match
+            document.querySelectorAll('a, button, div, span').forEach(el => {
+              const text = (el.textContent || '').trim().toLowerCase();
+              if (text.includes('built with spline')) el.remove();
+            });
+          };
+          removeAll();
+          const obs = new MutationObserver(removeAll);
+          obs.observe(document.body, { childList: true, subtree: true });
+          // Stop after a while to avoid running forever
+          setTimeout(() => obs.disconnect(), 10000);
+        })();
+
+        // Also remove badges inside spline-viewer's shadow DOM
+        (function removeSplineBadgeShadow(){
+          const tryRemove = () => {
+            document.querySelectorAll('spline-viewer').forEach(v => {
+              const sr = v.shadowRoot;
+              if (!sr) return;
+              sr.querySelectorAll('a, [part="branding"], [part="badge"], [id*="badge"], [class*="badge"], [href*="spline.design"]').forEach(el => {
+                const aria = el.getAttribute('aria-label') || '';
+                const text = (el.textContent || '').toLowerCase();
+                const href = el.getAttribute('href') || '';
+                if (aria.includes('Built with Spline') || text.includes('built with spline') || href.includes('spline.design')) {
+                  el.remove();
+                }
+              });
+            });
+            const g = document.querySelector('#spline-viewer-badge');
+            if (g) g.remove();
+          };
+          tryRemove();
+          const interval = setInterval(tryRemove, 400);
+          setTimeout(() => clearInterval(interval), 10000);
+        })();
+
+        // Mobile navigation toggle removed
+
+        // Smooth scrolling navigation removed
+
+        // Quantum particle animation
+        function createParticles() {
+            const container = document.getElementById('quantum-particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'floating-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particle.style.background = '#ffffff';
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize particles when page loads
+        window.addEventListener('load', createParticles);
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QEP-VLA Command Center</title>
+    <link rel="stylesheet" href="../assets/css/quantum-theme.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <style>
+        /* Command Center Specific Styles - Pure Black & White */
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .command-header {
+            background: rgba(0,0,0,0.9);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .command-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .command-logo .quantum-symbol {
+            font-size: 2rem;
+            color: #ffffff;
+        }
+        
+        .command-logo .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .command-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .command-nav a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .command-nav a.btn {
+            color: inherit;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .command-nav a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .command-main {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0;
+            padding: 0;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .command-panel {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+        }
+        
+        .command-panel h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .control-group label {
+            display: block;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .control-group input,
+        .control-group select,
+        .control-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.05);
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+        
+        .control-group input::placeholder,
+        .control-group textarea::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        
+        .btn-primary:hover {
+            background: #000000 !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .btn-danger {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        
+        .btn-danger:hover {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+        
+        .btn-info {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        
+        .btn-info:hover {
+            background: #000000 !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .status-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .status-item .status-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item .status-value {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .command-log {
+            background: rgba(0,0,0,0.5);
+            padding: 1rem;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+        
+        .log-timestamp {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .log-message {
+            color: #ffffff;
+        }
+        
+        .log-error {
+            color: #ffffff;
+        }
+        
+        .log-success {
+            color: #ffffff;
+        }
+        
+        .navigation-map-container {
+            position: relative;
+            background: #000000;
+            height: 500px;
+            overflow: hidden;
+        }
+
+        .navigation-map {
+            width: 100%;
+            height: 100%;
+            background: #000000;
+        }
+
+        .map-controls-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .map-controls-overlay > div {
+            display: flex;
+            gap: 8px;
+            pointer-events: auto;
+        }
+
+        .view-mode-controls button,
+        .map-provider-controls select,
+        .street-view-controls button {
+            padding: 6px 12px;
+            background: rgba(0,0,0,0.7);
+            color: #ffffff;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .view-mode-controls button.active,
+        .street-view-controls button.active {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .map-overlay {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 6px;
+            padding: 10px;
+            z-index: 1000;
+        }
+
+        .map-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-color.vehicle {
+            background: #ffffff;
+        }
+
+        .legend-color.route {
+            background: #ffffff;
+            border-radius: 2px;
+        }
+
+        .legend-color.destination {
+            background: #ffffff;
+            border-radius: 2px;
+        }
+
+        /* Street View Modal Styles */
+        .street-view-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .street-view-container {
+            width: 90%;
+            height: 80%;
+            background: #000000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .street-view-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .street-view-header h3 {
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .street-view-providers {
+            display: flex;
+            gap: 8px;
+        }
+
+        .provider-btn {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: capitalize;
+        }
+
+        .provider-btn.active {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .close-btn {
+            padding: 8px 12px;
+            background: #ffffff;
+            color: #000000;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .street-view-content {
+            flex: 1;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .street-view-placeholder {
+            text-align: center;
+        }
+
+        .street-view-placeholder h4 {
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .street-view-placeholder p {
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Weather Widget Styles */
+        .weather-widget {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .weather-widget h4 {
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+        }
+
+        .weather-main {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .temperature {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .condition {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .weather-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
+
+        .weather-item .label {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .weather-item .value {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Analytics Panel Styles */
+        .analytics-panel {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .analytics-panel h4 {
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .analytics-item {
+            background: rgba(255,255,255,0.05);
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .analytics-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .analytics-label {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .fleet-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .fleet-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 0.5rem;
+        }
+        
+        .fleet-item .vehicle-id {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .fleet-item .vehicle-status {
+            color: #ffffff;
+            font-size: 0.8rem;
+        }
+        
+        .fleet-item .vehicle-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .fleet-item .vehicle-actions button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+        }
+        
+        @media (max-width: 768px) {
+            .command-main {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .command-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .command-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Command Center Header -->
+    <header class="command-header">
+        <div class="command-logo">
+            <span class="quantum-symbol">⚛</span>
+            <span class="logo-text">QEP-VLA Command Center</span>
+        </div>
+        <nav class="command-nav">
+            <a href="/enhanced-dashboard.html">Dashboard</a>
+            <a href="index.html">Home</a>
+            <a href="#emergency" class="btn btn-danger">Emergency Stop</a>
+        </nav>
+    </header>
+
+    <!-- Main Command Interface -->
+    <main class="command-main">
+        <!-- Left Panel - Controls -->
+        <div class="command-panel">
+            <h3>Navigation Controls</h3>
+            
+            <div class="control-group">
+                <label for="targetLocation">Target Location</label>
+                <input type="text" id="targetLocation" placeholder="Enter destination coordinates or address">
+            </div>
+            
+            <div class="control-group">
+                <label for="navigationMode">Navigation Mode</label>
+                <select id="navigationMode">
+                    <option value="autonomous">Autonomous</option>
+                    <option value="assisted">Assisted</option>
+                    <option value="manual">Manual Override</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="privacyLevel">Privacy Level</label>
+                <select id="privacyLevel">
+                    <option value="0.01">Maximum (ε=0.01)</option>
+                    <option value="0.1" selected>High (ε=0.1)</option>
+                    <option value="0.5">Medium (ε=0.5)</option>
+                    <option value="1.0">Low (ε=1.0)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="quantumEnhancement">Quantum Enhancement</label>
+                <select id="quantumEnhancement">
+                    <option value="enabled" selected>Enabled</option>
+                    <option value="disabled">Disabled</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="startNavigation()">Start Navigation</button>
+                <button class="btn btn-secondary" onclick="pauseNavigation()">Pause</button>
+                <button class="btn btn-danger" onclick="stopNavigation()">Stop</button>
+            </div>
+        </div>
+
+        <!-- Right Panel - Status & Monitoring -->
+        <div class="command-panel">
+            <h3>System Status</h3>
+            
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">Active Vehicles</div>
+                    <div class="status-value" id="activeVehicles">25</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">System Health</div>
+                    <div class="status-value" id="systemHealth">98%</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Navigation Accuracy</div>
+                    <div class="status-value" id="navAccuracy">97.3%</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Processing Latency</div>
+                    <div class="status-value" id="processingLatency">47ms</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Traffic Status</div>
+                    <div class="status-value" id="trafficStatus">Moderate</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Active Incidents</div>
+                    <div class="status-value" id="activeIncidents">3</div>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="weather-widget">
+                <h4>🌤️ Weather Conditions</h4>
+                <div class="weather-data">
+                    <div class="weather-main">
+                        <div class="temperature" id="temperature">32.7°C</div>
+                        <div class="condition" id="weatherCondition">Partly Cloudy</div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-item">
+                            <span class="label">Humidity:</span>
+                            <span class="value" id="humidity">63%</span>
+                        </div>
+                        <div class="weather-item">
+                            <span class="label">Wind:</span>
+                            <span class="value" id="windSpeed">5.2 m/s</span>
+                        </div>
+                        <div class="weather-item">
+                            <span class="label">Visibility:</span>
+                            <span class="value" id="visibility">10.5 km</span>
+                        </div>
+                        <div class="weather-item">
+                            <span class="label">Air Quality:</span>
+                            <span class="value" id="airQuality">42 AQI</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Panel -->
+            <div class="analytics-panel">
+                <h4>📊 System Analytics</h4>
+                <div class="analytics-grid">
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="totalBuildings">1,247</div>
+                        <div class="analytics-label">Total Buildings</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="activeSensors">156</div>
+                        <div class="analytics-label">Active Sensors</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="systemUptime">24/7</div>
+                        <div class="analytics-label">System Uptime</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="dataProcessed">2.4TB</div>
+                        <div class="analytics-label">Data Processed</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Navigation Map</h3>
+            <div class="navigation-map-container">
+                <div class="map-controls-overlay">
+                    <div class="view-mode-controls">
+                        <button class="btn btn-sm btn-primary active" id="view3D" onclick="switchViewMode('3D')">3D</button>
+                        <button class="btn btn-sm btn-secondary" id="view2D" onclick="switchViewMode('2D')">2D</button>
+                        <button class="btn btn-sm btn-secondary" id="viewSatellite" onclick="switchViewMode('satellite')">Satellite</button>
+                        <button class="btn btn-sm btn-secondary" id="viewTraffic" onclick="switchViewMode('traffic')">Traffic</button>
+                    </div>
+                    <div class="map-provider-controls">
+                        <select id="mapProvider" onchange="switchMapProvider(this.value)">
+                            <option value="mapbox">Mapbox</option>
+                            <option value="cesium">Cesium</option>
+                            <option value="mappilar">Mappilar</option>
+                        </select>
+                    </div>
+                    <div class="street-view-controls">
+                        <button class="btn btn-sm btn-info" onclick="toggleStreetView()">🌅 Street View</button>
+                    </div>
+                    <div class="layer-controls">
+                        <button class="btn btn-sm btn-secondary" onclick="toggleLayer('traffic')">🚦 Traffic</button>
+                        <button class="btn btn-sm btn-secondary" onclick="toggleLayer('buildings')">🏢 Buildings</button>
+                        <button class="btn btn-sm btn-secondary" onclick="toggleLayer('terrain')">🏔️ Terrain</button>
+                        <button id="citiesBtn" class="btn btn-sm btn-secondary" onclick="toggleLayer('cities')">🏙️ Cities</button>
+                        <button id="landmarksBtn" class="btn btn-sm btn-secondary" onclick="toggleLayer('landmarks')">🗽 Landmarks</button>
+                    </div>
+                </div>
+                <div id="navigationMap" class="navigation-map"></div>
+                <div class="map-overlay">
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <div class="legend-color vehicle"></div>
+                            <span>Active Vehicles</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color route"></div>
+                            <span>Planned Routes</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color destination"></div>
+                            <span>Destinations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Fleet Management Panel -->
+    <div class="command-main">
+        <div class="command-panel">
+            <h3>Fleet Management</h3>
+            <div class="fleet-list" id="fleetList">
+                <div class="fleet-item">
+                    <div>
+                        <div class="vehicle-id">QEP-001</div>
+                        <div class="vehicle-status">Online - Zone A</div>
+                    </div>
+                    <div class="vehicle-actions">
+                        <button class="btn btn-secondary" onclick="controlVehicle('QEP-001')">Control</button>
+                        <button class="btn btn-primary" onclick="viewVehicle('QEP-001')">View</button>
+                    </div>
+                </div>
+                <div class="fleet-item">
+                    <div>
+                        <div class="vehicle-id">QEP-002</div>
+                        <div class="vehicle-status">Online - Zone B</div>
+                    </div>
+                    <div class="vehicle-actions">
+                        <button class="btn btn-secondary" onclick="controlVehicle('QEP-002')">Control</button>
+                        <button class="btn btn-primary" onclick="viewVehicle('QEP-002')">View</button>
+                    </div>
+                </div>
+                <div class="fleet-item">
+                    <div>
+                        <div class="vehicle-id">QEP-003</div>
+                        <div class="vehicle-status">Maintenance - Garage</div>
+                    </div>
+                    <div class="vehicle-actions">
+                        <button class="btn btn-secondary" onclick="controlVehicle('QEP-003')" disabled>Control</button>
+                        <button class="btn btn-primary" onclick="viewVehicle('QEP-003')">View</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="command-panel">
+            <h3>Command Log</h3>
+            <div class="command-log" id="commandLog">
+                <div class="log-entry">
+                    <span class="log-timestamp">[2025-01-27 14:30:15]</span>
+                    <span class="log-message">System initialized successfully</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[2025-01-27 14:30:16]</span>
+                    <span class="log-success">Quantum privacy transform activated</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[2025-01-27 14:30:17]</span>
+                    <span class="log-message">Fleet status: 25 vehicles online</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[2025-01-27 14:30:18]</span>
+                    <span class="log-message">Navigation accuracy: 97.3%</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[2025-01-27 14:30:19]</span>
+                    <span class="log-message">Processing latency: 47ms</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Street View Modal -->
+    <div id="streetViewModal" class="street-view-modal" style="display: none;">
+        <div class="street-view-container">
+            <div class="street-view-header">
+                <h3>🌅 Street View</h3>
+                <div class="street-view-providers">
+                    <button class="provider-btn active" onclick="switchStreetViewProvider('mapillary')">Mapillary</button>
+                    <button class="provider-btn" onclick="switchStreetViewProvider('google')">Google</button>
+                    <button class="provider-btn" onclick="switchStreetViewProvider('kartaview')">KartaView</button>
+                    <button class="provider-btn" onclick="switchStreetViewProvider('bing')">Bing</button>
+                    <button class="provider-btn" onclick="switchStreetViewProvider('here')">HERE</button>
+                </div>
+                <button class="close-btn" onclick="closeStreetView()">✕</button>
+            </div>
+            <div id="streetViewContainer" class="street-view-content">
+                <div class="street-view-placeholder">
+                    <h4>Click anywhere on the map to load street view</h4>
+                    <p>Select a location on the 3D map to view street-level imagery</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Command Center JavaScript with Full Mapbox 3D Integration
+        let navigationActive = false;
+        let currentMap = null;
+        let currentViewMode = '3D';
+        let currentMapProvider = 'mapbox';
+        let streetViewActive = false;
+        let currentStreetViewProvider = 'mapillary';
+        let vehicleMarkers = [];
+        let routeLayers = [];
+        let cityMarkers = [];
+        let landmarkMarkers = [];
+        
+        // API Tokens (Production Ready)
+        const API_TOKENS = {
+            mapbox: 'pk.eyJ1IjoiZmF2MSIsImEiOiJjbTlmNXNkNTQweDg5MmtxdDZ6dHk4MHFrIn0.TVkYeyob4fb0JVFHkcD1zw',
+            cesium: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiNDU2ZTNmMy0zMzczLTQwMTUtYTU0Ni1iZGE4OTVkYmFiNjciLCJpZCI6MzI5MTQ5LCJpYXQiOjE3NTQ0NDA2NDR9.TM0xevdP4PDCSVDtxPMi-lGrCcA5XyVwIT_OChcvp3Y',
+            mappilar: 'MLY|24939769952302534|a72d1d1b67c2c13b435edb54bb3bcf24'
+        };
+
+        // Global Cities and Landmarks Data
+        const cityData = [
+            // Major Global Cities
+            { name: 'New York City', coordinates: [-74.006, 40.7128], population: '8.4M', country: 'USA', type: 'major' },
+            { name: 'London', coordinates: [-0.1276, 51.5074], population: '9.5M', country: 'UK', type: 'major' },
+            { name: 'Tokyo', coordinates: [139.6917, 35.6895], population: '14.0M', country: 'Japan', type: 'major' },
+            { name: 'Paris', coordinates: [2.3522, 48.8566], population: '11.0M', country: 'France', type: 'major' },
+            { name: 'Los Angeles', coordinates: [-118.2437, 34.0522], population: '4.0M', country: 'USA', type: 'major' },
+            { name: 'Chicago', coordinates: [-87.6298, 41.8781], population: '2.7M', country: 'USA', type: 'major' },
+            { name: 'Sydney', coordinates: [151.2093, -33.8688], population: '5.3M', country: 'Australia', type: 'major' },
+            { name: 'Singapore', coordinates: [103.8198, 1.3521], population: '5.9M', country: 'Singapore', type: 'major' },
+            { name: 'Dubai', coordinates: [55.2708, 25.2048], population: '3.3M', country: 'UAE', type: 'major' },
+            { name: 'Hong Kong', coordinates: [114.1694, 22.3193], population: '7.5M', country: 'China', type: 'major' },
+            { name: 'Berlin', coordinates: [13.4050, 52.5200], population: '3.7M', country: 'Germany', type: 'major' },
+            { name: 'Moscow', coordinates: [37.6173, 55.7558], population: '12.5M', country: 'Russia', type: 'major' }
+        ];
+
+        const landmarkData = [
+            // Global Landmarks
+            { name: 'Statue of Liberty', coordinates: [-74.0445, 40.6892], type: 'monument', icon: '🗽', city: 'New York' },
+            { name: 'Big Ben', coordinates: [-0.1246, 51.4994], type: 'tower', icon: '🕰️', city: 'London' },
+            { name: 'Eiffel Tower', coordinates: [2.2945, 48.8584], type: 'tower', icon: '🗼', city: 'Paris' },
+            { name: 'Tokyo Tower', coordinates: [139.7454, 35.6586], type: 'tower', icon: '🗼', city: 'Tokyo' },
+            { name: 'Golden Gate Bridge', coordinates: [-122.4783, 37.8199], type: 'bridge', icon: '🌉', city: 'San Francisco' },
+            { name: 'Empire State Building', coordinates: [-73.9857, 40.7484], type: 'building', icon: '🏢', city: 'New York' },
+            { name: 'Sydney Opera House', coordinates: [151.2153, -33.8568], type: 'building', icon: '🎭', city: 'Sydney' },
+            { name: 'Marina Bay Sands', coordinates: [103.8583, 1.2833], type: 'building', icon: '🏨', city: 'Singapore' },
+            { name: 'Burj Khalifa', coordinates: [55.2719, 25.1972], type: 'building', icon: '🏗️', city: 'Dubai' },
+            { name: 'Tower Bridge', coordinates: [-0.0754, 51.5055], type: 'bridge', icon: '🌉', city: 'London' },
+            { name: 'Brandenburg Gate', coordinates: [13.3777, 52.5163], type: 'monument', icon: '🏛️', city: 'Berlin' },
+            { name: 'Red Square', coordinates: [37.6210, 55.7539], type: 'square', icon: '🏛️', city: 'Moscow' }
+        ];
+
+        let fleetData = [
+            { id: 'QEP-001', status: 'Online', location: 'Zone A', accuracy: '97.2%', latency: '45ms', position: [-74.5, 40.1] },
+            { id: 'QEP-002', status: 'Online', location: 'Zone B', accuracy: '96.8%', latency: '48ms', position: [-74.3, 40.2] },
+            { id: 'QEP-003', status: 'Maintenance', location: 'Garage', accuracy: 'N/A', latency: 'N/A', position: [-74.7, 40.0] },
+            { id: 'QEP-004', status: 'Online', location: 'Zone C', accuracy: '97.5%', latency: '42ms', position: [-74.4, 40.3] },
+            { id: 'QEP-005', status: 'Online', location: 'Zone A', accuracy: '96.9%', latency: '51ms', position: [-74.6, 40.15] }
+        ];
+
+        function startNavigation() {
+            const targetLocation = document.getElementById('targetLocation').value;
+            const navigationMode = document.getElementById('navigationMode').value;
+            const privacyLevel = document.getElementById('privacyLevel').value;
+            const quantumEnhancement = document.getElementById('quantumEnhancement').value;
+
+            if (!targetLocation) {
+                alert('Please enter a target location');
+                return;
+            }
+
+            navigationActive = true;
+            addLogEntry(`Navigation started to: ${targetLocation}`, 'success');
+            addLogEntry(`Mode: ${navigationMode}, Privacy: ε=${privacyLevel}, Quantum: ${quantumEnhancement}`, 'message');
+            
+            // Update status
+            document.getElementById('activeVehicles').textContent = '25';
+            document.getElementById('systemHealth').textContent = '98%';
+            
+            // Simulate navigation progress
+            simulateNavigation();
+        }
+
+        function pauseNavigation() {
+            if (navigationActive) {
+                navigationActive = false;
+                addLogEntry('Navigation paused', 'message');
+            }
+        }
+
+        function stopNavigation() {
+            navigationActive = false;
+            addLogEntry('Navigation stopped', 'message');
+        }
+
+        function simulateNavigation() {
+            if (!navigationActive) return;
+            
+            // Simulate real-time updates
+            setTimeout(() => {
+                const accuracy = (97.0 + Math.random() * 0.6).toFixed(1);
+                const latency = (40 + Math.random() * 20).toFixed(0);
+                
+                document.getElementById('navAccuracy').textContent = accuracy + '%';
+                document.getElementById('processingLatency').textContent = latency + 'ms';
+                
+                addLogEntry(`Navigation update: ${accuracy}% accuracy, ${latency}ms latency`, 'message');
+                
+                if (navigationActive) {
+                    simulateNavigation();
+                }
+            }, 2000);
+        }
+
+        function controlVehicle(vehicleId) {
+            addLogEntry(`Taking control of vehicle ${vehicleId}`, 'message');
+            // Implement vehicle control logic
+        }
+
+        function viewVehicle(vehicleId) {
+            addLogEntry(`Viewing vehicle ${vehicleId} details`, 'message');
+            // Implement vehicle view logic
+        }
+
+        function addLogEntry(message, type = 'message') {
+            const log = document.getElementById('commandLog');
+            const timestamp = new Date().toLocaleString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            entry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Emergency stop function
+        document.querySelector('a[href="#emergency"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to perform an emergency stop? This will halt all operations.')) {
+                navigationActive = false;
+                addLogEntry('EMERGENCY STOP ACTIVATED - All operations halted', 'error');
+                alert('Emergency stop activated! All operations have been halted.');
+            }
+        });
+
+        // MAP INITIALIZATION AND CONTROLS
+        function initializeMap() {
+            console.log('🗺️ Initializing map with provider:', currentMapProvider);
+            
+            switch(currentMapProvider) {
+                case 'mapbox':
+                    initializeMapbox();
+                    break;
+                case 'cesium':
+                    initializeCesium();
+                    break;
+                case 'mappilar':
+                    initializeMappilar();
+                    break;
+                default:
+                    initializeMapbox();
+            }
+        }
+
+        function initializeMapbox() {
+            // Load Mapbox GL JS if not already loaded
+            if (!window.mapboxgl) {
+                const script = document.createElement('script');
+                script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js';
+                script.onload = () => {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css';
+                    document.head.appendChild(link);
+                    createMapboxMap();
+                };
+                document.head.appendChild(script);
+            } else {
+                createMapboxMap();
+            }
+        }
+
+        function createMapboxMap() {
+            try {
+                mapboxgl.accessToken = API_TOKENS.mapbox;
+
+                currentMap = new mapboxgl.Map({
+                    container: 'navigationMap',
+                    style: 'mapbox://styles/mapbox/streets-v12',
+                    center: [-74.5, 40], // NYC area
+                    zoom: 9,
+                    pitch: currentViewMode === '3D' ? 45 : 0,
+                    bearing: currentViewMode === '3D' ? -17.6 : 0
+                });
+
+                currentMap.on('load', () => {
+                    console.log('🗺️ Mapbox map loaded successfully');
+                    addMapLayers();
+                    addVehicleMarkers();
+                    addCityMarkers();
+                    addLandmarkMarkers();
+                    addRouteLayers();
+                    setupMapInteractions();
+                    addLogEntry('Mapbox 3D map loaded successfully', 'success');
+                });
+
+                currentMap.on('error', (e) => {
+                    console.error('🗺️ Mapbox error:', e);
+                    addLogEntry('Mapbox failed to load: ' + e.error.message, 'error');
+                });
+
+            } catch (error) {
+                console.error('🗺️ Failed to initialize Mapbox:', error);
+                addLogEntry('Mapbox initialization failed', 'error');
+            }
+        }
+
+        function initializeCesium() {
+            // Load Cesium if not already loaded
+            if (!window.Cesium) {
+                const script = document.createElement('script');
+                script.src = 'https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js';
+                script.onload = () => {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Widgets/widgets.css';
+                    document.head.appendChild(link);
+                    createCesiumViewer();
+                };
+                document.head.appendChild(script);
+            } else {
+                createCesiumViewer();
+            }
+        }
+
+        function createCesiumViewer() {
+            try {
+                // Set Cesium Ion token
+                Cesium.Ion.defaultAccessToken = API_TOKENS.cesium;
+
+                // Create Cesium viewer
+                const viewer = new Cesium.Viewer('navigationMap', {
+                    terrainProvider: Cesium.createWorldTerrain(),
+                    baseLayerPicker: false,
+                    geocoder: true,
+                    homeButton: true,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    animation: false,
+                    timeline: false,
+                    fullscreenButton: true,
+                    vrButton: false,
+                    shadows: true,
+                    terrainShadows: Cesium.ShadowMode.ENABLED
+                });
+
+                // Add Mapbox imagery
+                const mapboxImagery = new Cesium.MapboxStyleImageryProvider({
+                    styleId: 'satellite-streets-v12',
+                    accessToken: API_TOKENS.mapbox
+                });
+                viewer.imageryLayers.addImageryProvider(mapboxImagery);
+
+                // Set initial camera position
+                viewer.camera.setView({
+                    destination: Cesium.Cartesian3.fromDegrees(-74.5, 40, 2000),
+                    orientation: {
+                        heading: 0.0,
+                        pitch: -Cesium.Math.PI_OVER_FOUR,
+                        roll: 0.0
+                    }
+                });
+
+                // Add 3D buildings
+                try {
+                    const osmBuildings = Cesium.createOsmBuildings();
+                    viewer.scene.primitives.add(osmBuildings);
+                } catch (error) {
+                    console.warn('Could not load 3D buildings:', error);
+                }
+
+                // Add vehicle entities
+                addCesiumVehicles(viewer);
+                addCesiumCityMarkers();
+                addCesiumLandmarkMarkers();
+
+                // Setup click handler for street view and entity interactions
+                viewer.cesiumWidget.canvas.addEventListener('click', (event) => {
+                    const clickPosition = new Cesium.Cartesian2(event.clientX, event.clientY);
+                    const pickedObject = viewer.scene.pick(clickPosition);
+                    
+                    if (pickedObject && pickedObject.id) {
+                        const entity = pickedObject.id;
+                        
+                        // Handle city clicks
+                        if (entity.id && entity.id.startsWith('city-')) {
+                            const cityIndex = parseInt(entity.id.split('-')[1]);
+                            const city = cityData[cityIndex];
+                            if (city) {
+                                showCityInfo(city);
+                                return;
+                            }
+                        }
+                        
+                        // Handle landmark clicks
+                        if (entity.id && entity.id.startsWith('landmark-')) {
+                            const landmarkIndex = parseInt(entity.id.split('-')[1]);
+                            const landmark = landmarkData[landmarkIndex];
+                            if (landmark) {
+                                showLandmarkInfo(landmark);
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Handle map clicks for street view
+                    const pickedPosition = viewer.camera.pickEllipsoid(clickPosition, viewer.scene.globe.ellipsoid);
+
+                    if (pickedPosition) {
+                        const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
+                        const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+                        const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+
+                        if (streetViewActive) {
+                            loadStreetView(longitude, latitude);
+                        } else {
+                            addLogEntry(`Cesium map clicked at: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`, 'message');
+                        }
+                    }
+                });
+
+                currentMap = viewer;
+                addLogEntry('Cesium 3D viewer loaded successfully', 'success');
+
+            } catch (error) {
+                console.error('Failed to initialize Cesium:', error);
+                addLogEntry('Cesium initialization failed: ' + error.message, 'error');
+            }
+        }
+
+        function addCesiumVehicles(viewer) {
+            fleetData.forEach(vehicle => {
+                if (vehicle.status === 'Online') {
+                    viewer.entities.add({
+                        id: vehicle.id,
+                        position: Cesium.Cartesian3.fromDegrees(vehicle.position[0], vehicle.position[1], 2),
+                        model: {
+                            uri: '/models/vehicle.glb', // Would need actual 3D model
+                            minimumPixelSize: 32,
+                            maximumScale: 100,
+                            color: Cesium.Color.WHITE
+                        },
+                        label: {
+                            text: vehicle.id,
+                            font: '12px sans-serif',
+                            pixelOffset: new Cesium.Cartesian2(0, -40),
+                            fillColor: Cesium.Color.WHITE,
+                            outlineColor: Cesium.Color.BLACK,
+                            outlineWidth: 1,
+                            style: Cesium.LabelStyle.FILL_AND_OUTLINE
+                        }
+                    });
+                }
+            });
+        }
+
+        function addCesiumTrafficLayer() {
+            if (!currentMap || currentMapProvider !== 'cesium') return;
+
+            // Add traffic flow visualization for Cesium
+            const trafficData = [
+                { start: [-74.5, 40.1], end: [-74.4, 40.15], congestion: 'heavy' },
+                { start: [-74.4, 40.15], end: [-74.3, 40.2], congestion: 'moderate' },
+                { start: [-74.3, 40.2], end: [-74.2, 40.25], congestion: 'low' },
+                { start: [-74.6, 40.0], end: [-74.5, 40.1], congestion: 'severe' }
+            ];
+
+            trafficData.forEach((traffic, index) => {
+                const startPos = Cesium.Cartesian3.fromDegrees(traffic.start[0], traffic.start[1], 0);
+                const endPos = Cesium.Cartesian3.fromDegrees(traffic.end[0], traffic.end[1], 0);
+
+                // Create traffic flow line
+                currentMap.entities.add({
+                    id: `traffic-flow-${index}`,
+                    polyline: {
+                        positions: [startPos, endPos],
+                        width: 4,
+                        material: Cesium.Color.WHITE.withAlpha(0.8),
+                        clampToGround: true
+                    }
+                });
+
+                // Add traffic incident markers
+                if (traffic.congestion === 'severe' || traffic.congestion === 'heavy') {
+                    currentMap.entities.add({
+                        id: `traffic-incident-${index}`,
+                        position: Cesium.Cartesian3.fromDegrees(traffic.start[0], traffic.start[1], 0),
+                        billboard: {
+                            image: 'data:image/svg+xml;base64,' + btoa(`
+                                <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="10" cy="10" r="8" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                                    <text x="10" y="14" text-anchor="middle" font-size="12" fill="#000000">!</text>
+                                </svg>
+                            `),
+                            width: 20,
+                            height: 20,
+                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+                        },
+                        label: {
+                            text: traffic.congestion.toUpperCase(),
+                            font: '10px sans-serif',
+                            pixelOffset: new Cesium.Cartesian2(0, -25),
+                            fillColor: Cesium.Color.WHITE,
+                            outlineColor: Cesium.Color.BLACK,
+                            outlineWidth: 1,
+                            style: Cesium.LabelStyle.FILL_AND_OUTLINE
+                        }
+                    });
+                }
+            });
+
+            addLogEntry('Cesium traffic layer added', 'success');
+        }
+
+        function addCesiumCityMarkers() {
+            if (!currentMap || currentMapProvider !== 'cesium') return;
+            
+            cityData.forEach((city, index) => {
+                currentMap.entities.add({
+                    id: `city-${index}`,
+                    position: Cesium.Cartesian3.fromDegrees(city.coordinates[0], city.coordinates[1], 0),
+                    billboard: {
+                        image: 'data:image/svg+xml;base64,' + btoa(`
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="20" r="18" fill="#ffffff" stroke="#000000" stroke-width="3"/>
+                                <circle cx="20" cy="20" r="15" fill="rgba(0,0,0,0.2)"/>
+                                <text x="20" y="25" text-anchor="middle" fill="#000000" font-size="18">🏙️</text>
+                                <circle cx="20" cy="20" r="18" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.6">
+                                    <animate attributeName="r" values="18;22;18" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>
+                        `),
+                        scale: 1.2,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+                    },
+                    label: {
+                        text: city.name,
+                        font: '12pt sans-serif',
+                        fillColor: Cesium.Color.WHITE,
+                        outlineColor: Cesium.Color.BLACK,
+                        outlineWidth: 2,
+                        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                        pixelOffset: new Cesium.Cartesian2(0, -40),
+                        scale: 0.8
+                    }
+                });
+            });
+            
+            addLogEntry('Cesium cities layer added', 'success');
+        }
+
+        function addCesiumLandmarkMarkers() {
+            if (!currentMap || currentMapProvider !== 'cesium') return;
+            
+            landmarkData.forEach((landmark, index) => {
+                currentMap.entities.add({
+                    id: `landmark-${index}`,
+                    position: Cesium.Cartesian3.fromDegrees(landmark.coordinates[0], landmark.coordinates[1], 0),
+                    billboard: {
+                        image: 'data:image/svg+xml;base64,' + btoa(`
+                            <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="22" cy="22" r="20" fill="#000000" stroke="#ffffff" stroke-width="3"/>
+                                <circle cx="22" cy="22" r="17" fill="rgba(255,255,255,0.2)"/>
+                                <text x="22" y="28" text-anchor="middle" fill="#ffffff" font-size="20">${landmark.icon}</text>
+                                <circle cx="22" cy="22" r="20" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.6">
+                                    <animate attributeName="r" values="20;24;20" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>
+                        `),
+                        scale: 1.3,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+                    },
+                    label: {
+                        text: landmark.name,
+                        font: '12pt sans-serif',
+                        fillColor: Cesium.Color.WHITE,
+                        outlineColor: Cesium.Color.BLACK,
+                        outlineWidth: 2,
+                        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                        pixelOffset: new Cesium.Cartesian2(0, -45),
+                        scale: 0.8
+                    }
+                });
+            });
+            
+            addLogEntry('Cesium landmarks layer added', 'success');
+        }
+
+        function initializeMappilar() {
+            addLogEntry('Mappilar integration coming soon', 'message');
+            // Mappilar integration would go here
+        }
+
+        function addMapLayers() {
+            if (!currentMap) return;
+
+            // Add traffic layer with enhanced visualization
+            try {
+                currentMap.addSource('traffic', {
+                    type: 'vector',
+                    url: 'mapbox://mapbox.mapbox-traffic-v1'
+                });
+
+                // Traffic flow layer
+                currentMap.addLayer({
+                    id: 'traffic-layer',
+                    type: 'line',
+                    source: 'traffic',
+                    'source-layer': 'traffic',
+                    paint: {
+                        'line-color': [
+                            'match',
+                            ['get', 'congestion'],
+                            'low', '#ffffff',
+                            'moderate', '#ffffff',
+                            'heavy', '#ffffff',
+                            'severe', '#ffffff',
+                            '#ffffff'
+                        ],
+                        'line-width': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            10, 2,
+                            16, 4
+                        ],
+                        'line-opacity': 0.8
+                    }
+                }, 'road-label');
+
+                // Traffic incidents layer
+                currentMap.addSource('traffic-incidents', {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: [
+                            {
+                                type: 'Feature',
+                                properties: { type: 'accident', severity: 'high' },
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [-74.5, 40.1]
+                                }
+                            },
+                            {
+                                type: 'Feature',
+                                properties: { type: 'construction', severity: 'medium' },
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [-74.4, 40.15]
+                                }
+                            },
+                            {
+                                type: 'Feature',
+                                properties: { type: 'congestion', severity: 'low' },
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [-74.3, 40.2]
+                                }
+                            }
+                        ]
+                    }
+                });
+
+                currentMap.addLayer({
+                    id: 'traffic-incidents',
+                    type: 'circle',
+                    source: 'traffic-incidents',
+                    paint: {
+                        'circle-color': [
+                            'match',
+                            ['get', 'severity'],
+                            'high', '#ffffff',
+                            'medium', '#ffffff',
+                            'low', '#ffffff',
+                            '#ffffff'
+                        ],
+                        'circle-radius': 8,
+                        'circle-stroke-color': '#000000',
+                        'circle-stroke-width': 2
+                    }
+                });
+
+                addLogEntry('Traffic layers loaded successfully', 'success');
+            } catch (error) {
+                console.warn('Traffic layer not available:', error);
+                addLogEntry('Traffic layer not available: ' + error.message, 'message');
+            }
+        }
+
+        function addVehicleMarkers() {
+            if (!currentMap) return;
+
+            // Clear existing markers
+            vehicleMarkers.forEach(marker => marker.remove());
+            vehicleMarkers = [];
+
+            fleetData.forEach(vehicle => {
+                if (vehicle.status === 'Online') {
+                    const el = document.createElement('div');
+                    el.className = 'vehicle-marker';
+                    el.innerHTML = `
+                        <div class="vehicle-icon" style="
+                            width: 20px;
+                            height: 20px;
+                            background: #ffffff;
+                            border: 2px solid #000000;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #000000;
+                            font-size: 10px;
+                            font-weight: bold;
+                        ">
+                            ${vehicle.id.slice(-2)}
+                        </div>
+                    `;
+
+                    el.addEventListener('click', () => {
+                        showVehicleInfo(vehicle);
+                    });
+
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat(vehicle.position)
+                        .addTo(currentMap);
+
+                    vehicleMarkers.push(marker);
+                }
+            });
+        }
+
+        function addRouteLayers() {
+            if (!currentMap) return;
+
+            // Sample routes
+            const routes = [
+                {
+                    id: 'route1',
+                    coordinates: [
+                        [-74.5, 40.1],
+                        [-74.4, 40.15],
+                        [-74.3, 40.2],
+                        [-74.2, 40.25]
+                    ]
+                },
+                {
+                    id: 'route2',
+                    coordinates: [
+                        [-74.7, 40.0],
+                        [-74.65, 40.05],
+                        [-74.6, 40.1],
+                        [-74.55, 40.15]
+                    ]
+                }
+            ];
+
+            routes.forEach(route => {
+                currentMap.addSource(route.id, {
+                    type: 'geojson',
+                    data: {
+                        type: 'Feature',
+                        properties: {},
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: route.coordinates
+                        }
+                    }
+                });
+
+                currentMap.addLayer({
+                    id: `${route.id}-layer`,
+                    type: 'line',
+                    source: route.id,
+                    paint: {
+                        'line-color': '#ffffff',
+                        'line-width': 4,
+                        'line-opacity': 0.8
+                    }
+                });
+
+                routeLayers.push(route);
+            });
+        }
+
+        function addCityMarkers() {
+            if (!currentMap) return;
+            
+            // Clear existing city markers
+            cityMarkers.forEach(marker => marker.remove());
+            cityMarkers = [];
+            
+            // Add city markers
+            cityData.forEach(city => {
+                const el = document.createElement('div');
+                el.className = 'city-marker';
+                el.innerHTML = `
+                    <div class="city-icon" style="
+                        width: 24px;
+                        height: 24px;
+                        background: #ffffff;
+                        border: 3px solid #000000;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #000000;
+                        font-size: 12px;
+                        cursor: pointer;
+                        box-shadow: 0 0 10px rgba(255,255,255,0.5);
+                        transition: all 0.3s ease;
+                    ">
+                        🏙️
+                    </div>
+                `;
+                
+                // Add hover effects
+                el.addEventListener('mouseenter', () => {
+                    el.style.transform = 'scale(1.2)';
+                    el.style.boxShadow = '0 0 15px rgba(255,255,255,0.8)';
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    el.style.transform = 'scale(1)';
+                    el.style.boxShadow = '0 0 10px rgba(255,255,255,0.5)';
+                });
+
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showCityInfo(city);
+                    // Also show popup
+                    marker.getPopup().addTo(currentMap);
+                });
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat(city.coordinates)
+                    .setPopup(new mapboxgl.Popup({
+                        closeButton: true,
+                        closeOnClick: false,
+                        className: 'city-popup'
+                    }).setHTML(`
+                        <div style="color: #000000; padding: 12px; min-width: 200px;">
+                            <h4 style="margin: 0 0 8px 0; color: #000000;">🏙️ ${city.name}</h4>
+                            <p style="margin: 4px 0;"><strong>Population:</strong> ${city.population}</p>
+                            <p style="margin: 4px 0;"><strong>Country:</strong> ${city.country}</p>
+                            <p style="margin: 4px 0;"><strong>Type:</strong> ${city.type}</p>
+                            <p style="margin: 4px 0; font-size: 12px; color: #666;">Click to view details</p>
+                        </div>
+                    `))
+                    .addTo(currentMap);
+                
+                cityMarkers.push(marker);
+            });
+        }
+
+        function addLandmarkMarkers() {
+            if (!currentMap) return;
+            
+            // Clear existing landmark markers
+            landmarkMarkers.forEach(marker => marker.remove());
+            landmarkMarkers = [];
+            
+            // Add landmark markers
+            landmarkData.forEach(landmark => {
+                const el = document.createElement('div');
+                el.className = 'landmark-marker';
+                el.innerHTML = `
+                    <div class="landmark-icon" style="
+                        width: 26px;
+                        height: 26px;
+                        background: #000000;
+                        border: 3px solid #ffffff;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #ffffff;
+                        font-size: 14px;
+                        cursor: pointer;
+                        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+                        transition: all 0.3s ease;
+                    ">
+                        ${landmark.icon}
+                    </div>
+                `;
+                
+                // Add hover effects
+                el.addEventListener('mouseenter', () => {
+                    el.style.transform = 'scale(1.2)';
+                    el.style.boxShadow = '0 0 15px rgba(0,0,0,0.8)';
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    el.style.transform = 'scale(1)';
+                    el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+                });
+
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showLandmarkInfo(landmark);
+                    // Also show popup
+                    marker.getPopup().addTo(currentMap);
+                });
+
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat(landmark.coordinates)
+                    .setPopup(new mapboxgl.Popup({
+                        closeButton: true,
+                        closeOnClick: false,
+                        className: 'landmark-popup'
+                    }).setHTML(`
+                        <div style="color: #000000; padding: 12px; min-width: 200px;">
+                            <h4 style="margin: 0 0 8px 0; color: #000000;">${landmark.icon} ${landmark.name}</h4>
+                            <p style="margin: 4px 0;"><strong>Type:</strong> ${landmark.type}</p>
+                            <p style="margin: 4px 0;"><strong>City:</strong> ${landmark.city}</p>
+                            <p style="margin: 4px 0;"><strong>Icon:</strong> ${landmark.icon}</p>
+                            <p style="margin: 4px 0; font-size: 12px; color: #666;">Click to view details</p>
+                        </div>
+                    `))
+                    .addTo(currentMap);
+                
+                landmarkMarkers.push(marker);
+            });
+        }
+
+        function setupMapInteractions() {
+            if (!currentMap) return;
+
+            currentMap.on('click', (e) => {
+                if (streetViewActive) {
+                    loadStreetView(e.lngLat.lng, e.lngLat.lat);
+                } else {
+                    addLogEntry(`Map clicked at: ${e.lngLat.lat.toFixed(4)}, ${e.lngLat.lng.toFixed(4)}`, 'message');
+                }
+            });
+        }
+
+        // VIEW MODE CONTROLS
+        function switchViewMode(mode) {
+            currentViewMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.view-mode-controls button').forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            
+            const activeButton = document.getElementById(`view${mode.charAt(0).toUpperCase() + mode.slice(1)}`);
+            if (activeButton) {
+                activeButton.classList.add('active', 'btn-primary');
+                activeButton.classList.remove('btn-secondary');
+            }
+
+            if (currentMap && currentMapProvider === 'mapbox') {
+                switch(mode) {
+                    case '3D':
+                        currentMap.setStyle('mapbox://styles/mapbox/streets-v12');
+                        currentMap.setPitch(45);
+                        currentMap.setBearing(-17.6);
+                        currentMap.setZoom(9);
+                        break;
+                    case '2D':
+                        currentMap.setStyle('mapbox://styles/mapbox/streets-v12');
+                        currentMap.setPitch(0);
+                        currentMap.setBearing(0);
+                        currentMap.setZoom(9);
+                        break;
+                    case 'satellite':
+                        currentMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+                        currentMap.setPitch(0);
+                        currentMap.setBearing(0);
+                        currentMap.setZoom(9);
+                        break;
+                    case 'traffic':
+                        currentMap.setStyle('mapbox://styles/mapbox/streets-v12');
+                        currentMap.setPitch(0);
+                        currentMap.setBearing(0);
+                        currentMap.setZoom(9);
+                        // Ensure traffic layer is visible
+                        setTimeout(() => {
+                            if (currentMap.getLayer('traffic-layer')) {
+                                currentMap.setLayoutProperty('traffic-layer', 'visibility', 'visible');
+                            }
+                        }, 1000);
+                        break;
+                }
+            } else if (currentMap && currentMapProvider === 'cesium') {
+                switch(mode) {
+                    case '3D':
+                        currentMap.scene.mode = Cesium.SceneMode.SCENE3D;
+                        currentMap.scene.globe.enableLighting = true;
+                        currentMap.camera.setView({
+                            destination: Cesium.Cartesian3.fromDegrees(-74.5, 40, 2000),
+                            orientation: {
+                                heading: 0.0,
+                                pitch: -Cesium.Math.PI_OVER_FOUR,
+                                roll: 0.0
+                            }
+                        });
+                        break;
+                    case '2D':
+                        currentMap.scene.mode = Cesium.SceneMode.SCENE2D;
+                        currentMap.scene.globe.enableLighting = false;
+                        break;
+                    case 'satellite':
+                        currentMap.scene.mode = Cesium.SceneMode.COLUMBUS_VIEW;
+                        currentMap.scene.globe.enableLighting = true;
+                        break;
+                    case 'traffic':
+                        currentMap.scene.mode = Cesium.SceneMode.SCENE2D;
+                        currentMap.scene.globe.enableLighting = false;
+                        // Add traffic visualization for Cesium
+                        addCesiumTrafficLayer();
+                        break;
+                }
+            }
+
+            addLogEntry(`Switched to ${mode} view mode`, 'message');
+        }
+
+        function switchMapProvider(provider) {
+            currentMapProvider = provider;
+            
+            // Clear existing map
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+
+            // Clear markers and routes
+            vehicleMarkers.forEach(marker => marker.remove());
+            vehicleMarkers = [];
+            routeLayers = [];
+
+            addLogEntry(`Switching to ${provider} map provider`, 'message');
+            initializeMap();
+        }
+
+        // STREET VIEW CONTROLS
+        function toggleStreetView() {
+            streetViewActive = !streetViewActive;
+            const modal = document.getElementById('streetViewModal');
+            
+            if (streetViewActive) {
+                modal.style.display = 'flex';
+                addLogEntry('Street view activated - click on map to load imagery', 'success');
+            } else {
+                modal.style.display = 'none';
+                addLogEntry('Street view deactivated', 'message');
+            }
+        }
+
+        function closeStreetView() {
+            streetViewActive = false;
+            document.getElementById('streetViewModal').style.display = 'none';
+            addLogEntry('Street view closed', 'message');
+        }
+
+        function switchStreetViewProvider(provider) {
+            currentStreetViewProvider = provider;
+            
+            // Update button states
+            document.querySelectorAll('.provider-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            addLogEntry(`Switched to ${provider} street view provider`, 'message');
+        }
+
+        function loadStreetView(longitude, latitude) {
+            const container = document.getElementById('streetViewContainer');
+            
+            addLogEntry(`Loading ${currentStreetViewProvider} street view at ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`, 'message');
+            
+            // Simulate street view loading
+            container.innerHTML = `
+                <div class="street-view-placeholder">
+                    <h4>🌅 ${currentStreetViewProvider.charAt(0).toUpperCase() + currentStreetViewProvider.slice(1)} Street View</h4>
+                    <p>Loading street-level imagery...</p>
+                    <p>Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}</p>
+                    <div style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                        <p>🔄 Street view integration in progress...</p>
+                        <p>This would show 360° panoramic imagery from ${currentStreetViewProvider}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // LAYER CONTROLS
+        function toggleLayer(layerType) {
+            if (!currentMap) return;
+
+            addLogEntry(`Toggling ${layerType} layer`, 'message');
+
+            switch(layerType) {
+                case 'traffic':
+                    if (currentMapProvider === 'mapbox') {
+                        const trafficLayer = currentMap.getLayer('traffic-layer');
+                        const incidentsLayer = currentMap.getLayer('traffic-incidents');
+                        
+                        if (trafficLayer) {
+                            const visibility = currentMap.getLayoutProperty('traffic-layer', 'visibility');
+                            const newVisibility = visibility === 'visible' ? 'none' : 'visible';
+                            currentMap.setLayoutProperty('traffic-layer', 'visibility', newVisibility);
+                            
+                            if (incidentsLayer) {
+                                currentMap.setLayoutProperty('traffic-incidents', 'visibility', newVisibility);
+                            }
+                        }
+                    } else if (currentMapProvider === 'cesium') {
+                        // Toggle Cesium traffic entities
+                        const entities = currentMap.entities.values;
+                        entities.forEach(entity => {
+                            if (entity.id && entity.id.includes('traffic-')) {
+                                entity.show = !entity.show;
+                            }
+                        });
+                    }
+                    break;
+                case 'buildings':
+                    if (currentMapProvider === 'cesium') {
+                        // Toggle 3D buildings in Cesium
+                        const buildings = currentMap.scene.primitives.get(0);
+                        if (buildings) {
+                            buildings.show = !buildings.show;
+                        }
+                    }
+                    break;
+                case 'terrain':
+                    if (currentMapProvider === 'cesium') {
+                        // Toggle terrain in Cesium
+                        currentMap.scene.globe.enableLighting = !currentMap.scene.globe.enableLighting;
+                    }
+                    break;
+                case 'cities':
+                    if (currentMapProvider === 'mapbox') {
+                        if (cityMarkers.length === 0) {
+                            addCityMarkers();
+                            document.getElementById('citiesBtn').className = 'btn btn-sm btn-primary';
+                            addLogEntry('Cities layer enabled', 'message');
+                        } else {
+                            cityMarkers.forEach(marker => marker.remove());
+                            cityMarkers = [];
+                            document.getElementById('citiesBtn').className = 'btn btn-sm btn-secondary';
+                            addLogEntry('Cities layer disabled', 'message');
+                        }
+                    } else if (currentMapProvider === 'cesium') {
+                        // Toggle Cesium city entities
+                        const entities = currentMap.entities.values;
+                        entities.forEach(entity => {
+                            if (entity.id && entity.id.includes('city-')) {
+                                entity.show = !entity.show;
+                            }
+                        });
+                        const btn = document.getElementById('citiesBtn');
+                        btn.className = btn.className.includes('btn-primary') ? 'btn btn-sm btn-secondary' : 'btn btn-sm btn-primary';
+                    }
+                    break;
+                case 'landmarks':
+                    if (currentMapProvider === 'mapbox') {
+                        if (landmarkMarkers.length === 0) {
+                            addLandmarkMarkers();
+                            document.getElementById('landmarksBtn').className = 'btn btn-sm btn-primary';
+                            addLogEntry('Landmarks layer enabled', 'message');
+                        } else {
+                            landmarkMarkers.forEach(marker => marker.remove());
+                            landmarkMarkers = [];
+                            document.getElementById('landmarksBtn').className = 'btn btn-sm btn-secondary';
+                            addLogEntry('Landmarks layer disabled', 'message');
+                        }
+                    } else if (currentMapProvider === 'cesium') {
+                        // Toggle Cesium landmark entities
+                        const entities = currentMap.entities.values;
+                        entities.forEach(entity => {
+                            if (entity.id && entity.id.includes('landmark-')) {
+                                entity.show = !entity.show;
+                            }
+                        });
+                        const btn = document.getElementById('landmarksBtn');
+                        btn.className = btn.className.includes('btn-primary') ? 'btn btn-sm btn-secondary' : 'btn btn-sm btn-primary';
+                    }
+                    break;
+            }
+        }
+
+        // WEATHER DATA UPDATES
+        function updateWeatherData() {
+            const weatherData = {
+                temperature: (32.7 + (Math.random() - 0.5) * 2).toFixed(1),
+                condition: ['Partly Cloudy', 'Sunny', 'Overcast', 'Light Rain'][Math.floor(Math.random() * 4)],
+                humidity: Math.floor(63 + (Math.random() - 0.5) * 10),
+                windSpeed: (5.2 + (Math.random() - 0.5) * 2).toFixed(1),
+                visibility: (10.5 + (Math.random() - 0.5) * 2).toFixed(1),
+                airQuality: Math.floor(42 + (Math.random() - 0.5) * 10)
+            };
+
+            document.getElementById('temperature').textContent = weatherData.temperature + '°C';
+            document.getElementById('weatherCondition').textContent = weatherData.condition;
+            document.getElementById('humidity').textContent = weatherData.humidity + '%';
+            document.getElementById('windSpeed').textContent = weatherData.windSpeed + ' m/s';
+            document.getElementById('visibility').textContent = weatherData.visibility + ' km';
+            document.getElementById('airQuality').textContent = weatherData.airQuality + ' AQI';
+        }
+
+        // ANALYTICS UPDATES
+        function updateAnalytics() {
+            const analytics = {
+                totalBuildings: 1247 + Math.floor((Math.random() - 0.5) * 10),
+                activeSensors: 156 + Math.floor((Math.random() - 0.5) * 8),
+                systemUptime: '24/7',
+                dataProcessed: (2.4 + (Math.random() - 0.5) * 0.2).toFixed(1) + 'TB'
+            };
+
+            document.getElementById('totalBuildings').textContent = analytics.totalBuildings.toLocaleString();
+            document.getElementById('activeSensors').textContent = analytics.activeSensors;
+            document.getElementById('systemUptime').textContent = analytics.systemUptime;
+            document.getElementById('dataProcessed').textContent = analytics.dataProcessed;
+        }
+
+        // TRAFFIC STATUS UPDATES
+        function updateTrafficStatus() {
+            const trafficStatuses = ['Low', 'Moderate', 'Heavy', 'Severe'];
+            const randomStatus = trafficStatuses[Math.floor(Math.random() * trafficStatuses.length)];
+            const activeIncidents = Math.floor(Math.random() * 5) + 1;
+
+            document.getElementById('trafficStatus').textContent = randomStatus;
+            document.getElementById('activeIncidents').textContent = activeIncidents;
+
+            // Update traffic layer colors based on status
+            if (currentMap && currentMapProvider === 'mapbox' && currentMap.getLayer('traffic-layer')) {
+                const colorMap = {
+                    'Low': '#ffffff',
+                    'Moderate': '#ffffff',
+                    'Heavy': '#ffffff',
+                    'Severe': '#ffffff'
+                };
+                
+                currentMap.setPaintProperty('traffic-layer', 'line-color', colorMap[randomStatus]);
+            }
+        }
+
+        // VEHICLE SIMULATION
+        function simulateVehicleMovement() {
+            if (!currentMap || !navigationActive) return;
+
+            fleetData.forEach(vehicle => {
+                if (vehicle.status === 'Online' && vehicle.position) {
+                    // Simulate small position changes
+                    vehicle.position[0] += (Math.random() - 0.5) * 0.001;
+                    vehicle.position[1] += (Math.random() - 0.5) * 0.001;
+
+                    // Update markers if using Mapbox
+                    if (currentMapProvider === 'mapbox') {
+                        const marker = vehicleMarkers.find(m => m.getElement().textContent.includes(vehicle.id.slice(-2)));
+                        if (marker) {
+                            marker.setLngLat(vehicle.position);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize command center
+        document.addEventListener('DOMContentLoaded', function() {
+            addLogEntry('QEP-VLA Command Center initialized', 'success');
+            addLogEntry('Quantum privacy transform ready', 'success');
+            addLogEntry('Fleet monitoring active', 'message');
+            
+            // Initialize map after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                initializeMap();
+            }, 1000);
+        });
+
+        // Auto-refresh intervals
+        setInterval(() => {
+            if (navigationActive) {
+                const randomVehicle = fleetData[Math.floor(Math.random() * fleetData.length)];
+                if (randomVehicle.status === 'Online') {
+                    const newAccuracy = (96.5 + Math.random() * 1.0).toFixed(1);
+                    const newLatency = (40 + Math.random() * 15).toFixed(0);
+                    addLogEntry(`${randomVehicle.id}: ${newAccuracy}% accuracy, ${newLatency}ms latency`, 'message');
+                }
+            }
+        }, 5000);
+
+        // Update weather data every 30 seconds
+        setInterval(updateWeatherData, 30000);
+
+        // Update analytics every 10 seconds
+        setInterval(updateAnalytics, 10000);
+
+        // Update traffic status every 15 seconds
+        setInterval(updateTrafficStatus, 15000);
+
+        // Simulate vehicle movement every 2 seconds
+        setInterval(simulateVehicleMovement, 2000);
+
+        // Info display functions
+        function showVehicleInfo(vehicle) {
+            addLogEntry(`Vehicle ${vehicle.id} - Status: ${vehicle.status}, Location: ${vehicle.location}`, 'message');
+        }
+
+        function showCityInfo(city) {
+            addLogEntry(`City: ${city.name} - Population: ${city.population}, Country: ${city.country}, Type: ${city.type}`, 'message');
+            
+            // Show detailed city information in a modal or expanded view
+            const cityInfo = `
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin: 10px 0;">
+                    <h3 style="color: #ffffff; margin: 0 0 15px 0;">🏙️ ${city.name}</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #ffffff;">
+                        <div><strong>Population:</strong> ${city.population}</div>
+                        <div><strong>Country:</strong> ${city.country}</div>
+                        <div><strong>Type:</strong> ${city.type}</div>
+                        <div><strong>Coordinates:</strong> ${city.coordinates[0]}, ${city.coordinates[1]}</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-sm btn-primary" onclick="flyToCity('${city.name}', ${city.coordinates[0]}, ${city.coordinates[1]})">
+                            🎯 Fly to City
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="showCityLandmarks('${city.name}')">
+                            🗽 Show Landmarks
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Update the command log with city info
+            const logContainer = document.querySelector('.command-log');
+            if (logContainer) {
+                const cityInfoDiv = document.createElement('div');
+                cityInfoDiv.innerHTML = cityInfo;
+                cityInfoDiv.className = 'city-info-display';
+                logContainer.appendChild(cityInfoDiv);
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (cityInfoDiv.parentNode) {
+                        cityInfoDiv.parentNode.removeChild(cityInfoDiv);
+                    }
+                }, 10000);
+            }
+        }
+
+        function showLandmarkInfo(landmark) {
+            addLogEntry(`Landmark: ${landmark.name} - Type: ${landmark.type}, City: ${landmark.city} ${landmark.icon}`, 'message');
+            
+            // Show detailed landmark information
+            const landmarkInfo = `
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin: 10px 0;">
+                    <h3 style="color: #ffffff; margin: 0 0 15px 0;">${landmark.icon} ${landmark.name}</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #ffffff;">
+                        <div><strong>Type:</strong> ${landmark.type}</div>
+                        <div><strong>City:</strong> ${landmark.city}</div>
+                        <div><strong>Icon:</strong> ${landmark.icon}</div>
+                        <div><strong>Coordinates:</strong> ${landmark.coordinates[0]}, ${landmark.coordinates[1]}</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-sm btn-primary" onclick="flyToLandmark('${landmark.name}', ${landmark.coordinates[0]}, ${landmark.coordinates[1]})">
+                            🎯 Fly to Landmark
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="showStreetView(${landmark.coordinates[0]}, ${landmark.coordinates[1]})">
+                            🌅 Street View
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Update the command log with landmark info
+            const logContainer = document.querySelector('.command-log');
+            if (logContainer) {
+                const landmarkInfoDiv = document.createElement('div');
+                landmarkInfoDiv.innerHTML = landmarkInfo;
+                landmarkInfoDiv.className = 'landmark-info-display';
+                logContainer.appendChild(landmarkInfoDiv);
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (landmarkInfoDiv.parentNode) {
+                        landmarkInfoDiv.parentNode.removeChild(landmarkInfoDiv);
+                    }
+                }, 10000);
+            }
+        }
+
+        // Navigation functions
+        function flyToCity(cityName, longitude, latitude) {
+            if (currentMap && currentMapProvider === 'mapbox') {
+                currentMap.flyTo({
+                    center: [longitude, latitude],
+                    zoom: 12,
+                    duration: 2000
+                });
+                addLogEntry(`Flying to ${cityName}`, 'success');
+            } else if (currentMap && currentMapProvider === 'cesium') {
+                currentMap.camera.flyTo({
+                    destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 1000),
+                    duration: 2.0
+                });
+                addLogEntry(`Flying to ${cityName}`, 'success');
+            }
+        }
+
+        function flyToLandmark(landmarkName, longitude, latitude) {
+            if (currentMap && currentMapProvider === 'mapbox') {
+                currentMap.flyTo({
+                    center: [longitude, latitude],
+                    zoom: 15,
+                    duration: 2000
+                });
+                addLogEntry(`Flying to ${landmarkName}`, 'success');
+            } else if (currentMap && currentMapProvider === 'cesium') {
+                currentMap.camera.flyTo({
+                    destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 500),
+                    duration: 2.0
+                });
+                addLogEntry(`Flying to ${landmarkName}`, 'success');
+            }
+        }
+
+        function showCityLandmarks(cityName) {
+            const cityLandmarks = landmarkData.filter(landmark => landmark.city === cityName);
+            if (cityLandmarks.length > 0) {
+                addLogEntry(`Found ${cityLandmarks.length} landmarks in ${cityName}:`, 'message');
+                cityLandmarks.forEach(landmark => {
+                    addLogEntry(`  ${landmark.icon} ${landmark.name} (${landmark.type})`, 'message');
+                });
+            } else {
+                addLogEntry(`No landmarks found for ${cityName}`, 'message');
+            }
+        }
+
+        function showStreetView(longitude, latitude) {
+            if (streetViewActive) {
+                loadStreetView(longitude, latitude);
+            } else {
+                toggleStreetView();
+                setTimeout(() => {
+                    loadStreetView(longitude, latitude);
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>

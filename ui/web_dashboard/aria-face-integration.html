@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARIA - Face Recognition AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .face-recognition-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            height: 500px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .face-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            backdrop-filter: blur(15px);
+            z-index: 10;
+            max-width: 300px;
+        }
+
+        .face-info {
+            margin-bottom: 10px;
+        }
+
+        .face-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+
+        .face-status {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+            transition: width 0.3s ease;
+        }
+
+        .aria-panel {
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(75, 85, 99, 0.3);
+            height: fit-content;
+        }
+
+        .aria-avatar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .aria-avatar .robot-face {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: robot-pulse 2s infinite;
+        }
+
+        @keyframes robot-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .conversation-display {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .conversation-item {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .user-message {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 3px solid #3b82f6;
+            text-align: right;
+        }
+
+        .aria-message {
+            background: rgba(168, 85, 247, 0.2);
+            border-left: 3px solid #a855f7;
+        }
+
+        .face-recognition-stats {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            font-size: 0.8rem;
+        }
+
+        .stat-item {
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .control-panel {
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(75, 85, 99, 0.3);
+            margin-top: 20px;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #6b7280;
+            color: #e5e7eb;
+        }
+
+        .voice-select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #374151;
+            border-radius: 6px;
+            background: rgba(31, 41, 55, 0.8);
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #374151;
+            border-radius: 6px;
+            background: rgba(31, 41, 55, 0.8);
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .status-listening {
+            background: #f59e0b;
+            animation: listening-pulse 0.5s infinite;
+        }
+
+        .status-speaking {
+            background: #8b5cf6;
+            animation: speaking-pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        @keyframes listening-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.4); }
+        }
+
+        @keyframes speaking-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🤖 ARIA - Face Recognition AI Assistant</h1>
+            <p>Advanced AI with Real-time Face Recognition & Natural Conversation</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Face Recognition Panel -->
+            <div class="face-recognition-panel">
+                <!-- Loading State -->
+                <div class="loading" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Initializing Face Recognition...</p>
+                </div>
+
+                <!-- Camera Feed -->
+                <video class="camera-feed" id="cameraFeed" style="display: none;" autoplay muted></video>
+                <canvas id="faceCanvas" style="display: none;"></canvas>
+
+                <!-- Face Overlay -->
+                <div class="face-overlay" id="faceOverlay" style="display: none;">
+                    <div class="face-info">
+                        <div class="face-name" id="faceName">No Face Detected</div>
+                        <div class="face-status" id="faceStatus">Looking for faces...</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Face Recognition Stats -->
+                <div class="face-recognition-stats" id="faceStats" style="display: none;">
+                    <div class="stat-item">
+                        <span class="stat-value" id="knownFaces">0</span> Known Faces
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalInteractions">0</span> Interactions
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="currentFPS">0</span> FPS
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARIA Assistant Panel -->
+            <div class="aria-panel">
+                <div class="aria-avatar">
+                    <div class="robot-face" id="robotFace">🤖</div>
+                    <div class="status-indicator">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="ariaStatus">Ready to help</span>
+                    </div>
+                </div>
+
+                <div class="conversation-display" id="conversationDisplay">
+                    <div style="text-align: center; color: #6b7280; padding: 10px;">
+                        ARIA is watching for faces and ready to chat!
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="control-title">🎤 Voice & Interaction</h3>
+                    <select class="voice-select" id="voiceSelect">
+                        <option value="EXAVITQu4vr4xnSDxMaL">Sarah - Professional Female</option>
+                        <option value="21m00Tcm4TlvDq8ikWAM">Rachel - Warm & Friendly</option>
+                        <option value="AZnzlk1XvdvUeBnXmlld">Domi - Confident Female</option>
+                        <option value="CYw3kZ02Hs0563khs1Fj">Dave - Authoritative Male</option>
+                        <option value="FGY2WhTYpPnrIDTdsKH5">Laura - Conversational</option>
+                        <option value="GBv7mTt0atIp3Br8iCZE">George - Distinguished</option>
+                        <option value="N2lVS1w4EtoT3dr4eOWO">Callum - Professional Male</option>
+                    </select>
+                    <button class="btn btn-primary" id="startConversation">
+                        🎤 Start Voice Chat
+                    </button>
+                    <button class="btn btn-outline" id="stopSpeaking">
+                        🔇 Stop
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="control-title">💬 Text Chat</h3>
+                    <input type="text" class="text-input" id="textInput" 
+                           placeholder="Type your message to ARIA..." autocomplete="off">
+                    <button class="btn btn-primary" id="sendMessage">Send Message</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="control-section">
+                <h3 class="control-title">🎮 System Controls</h3>
+                <button class="btn btn-success" id="startFaceRecognition">📷 Start Face Recognition</button>
+                <button class="btn btn-outline" id="stopFaceRecognition">⏹️ Stop Recognition</button>
+                <button class="btn btn-outline" id="showStats">📊 Show Statistics</button>
+                <button class="btn btn-outline" id="clearDatabase">🗑️ Clear Database</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ARIAFaceRecognitionSystem {
+            constructor() {
+                // ElevenLabs Configuration
+                this.elevenLabsApiKey = 'sk_a5ac890c43823746d54383e7416d2f1fc42003b5cd71feb0';
+                this.selectedVoice = 'EXAVITQu4vr4xnSDxMaL';
+                
+                // Face recognition state
+                this.isFaceRecognitionActive = false;
+                this.knownFaces = new Map();
+                this.faceEncodings = [];
+                this.faceNames = [];
+                this.conversationCooldown = 30000; // 30 seconds
+                this.lastConversationTime = new Map();
+                
+                // Speech and conversation
+                this.isListening = false;
+                this.isSpeaking = false;
+                this.conversation = [];
+                this.recognition = null;
+                this.currentAudio = null;
+                
+                // Camera and canvas
+                this.video = null;
+                this.canvas = null;
+                this.ctx = null;
+                this.stream = null;
+                
+                // Performance tracking
+                this.frameCount = 0;
+                this.lastFpsTime = Date.now();
+                this.currentFps = 0;
+                
+                this.init();
+            }
+
+            async init() {
+                this.bindEvents();
+                this.initializeSpeechRecognition();
+                this.showInterface();
+                this.startAssistant();
+            }
+
+            initializeSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    this.recognition = new webkitSpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = true;
+                    this.recognition.lang = 'en-US';
+
+                    this.recognition.onresult = (event) => {
+                        let transcript = '';
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            if (event.results[i].isFinal) {
+                                transcript += event.results[i][0].transcript;
+                            }
+                        }
+                        if (transcript.trim()) {
+                            this.processUserInput(transcript.trim());
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.stopListening();
+                    };
+
+                    this.recognition.onend = () => {
+                        this.stopListening();
+                    };
+                }
+            }
+
+            showInterface() {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('faceOverlay').style.display = 'block';
+                document.getElementById('faceStats').style.display = 'block';
+            }
+
+            bindEvents() {
+                // Face recognition controls
+                document.getElementById('startFaceRecognition').addEventListener('click', () => {
+                    this.startFaceRecognition();
+                });
+
+                document.getElementById('stopFaceRecognition').addEventListener('click', () => {
+                    this.stopFaceRecognition();
+                });
+
+                document.getElementById('showStats').addEventListener('click', () => {
+                    this.showStatistics();
+                });
+
+                document.getElementById('clearDatabase').addEventListener('click', () => {
+                    this.clearDatabase();
+                });
+
+                // Voice controls
+                document.getElementById('startConversation').addEventListener('click', () => {
+                    this.isListening ? this.stopListening() : this.startListening();
+                });
+
+                document.getElementById('stopSpeaking').addEventListener('click', () => {
+                    this.stopCurrentAudio();
+                });
+
+                // Text input
+                document.getElementById('sendMessage').addEventListener('click', () => {
+                    this.sendTextMessage();
+                });
+
+                document.getElementById('textInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendTextMessage();
+                    }
+                });
+
+                // Voice selection
+                document.getElementById('voiceSelect').addEventListener('change', (e) => {
+                    this.selectedVoice = e.target.value;
+                });
+            }
+
+            async startFaceRecognition() {
+                try {
+                    this.video = document.getElementById('cameraFeed');
+                    this.canvas = document.getElementById('faceCanvas');
+                    this.ctx = this.canvas.getContext('2d');
+
+                    // Get camera stream
+                    this.stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: 640, 
+                            height: 480,
+                            facingMode: 'user'
+                        } 
+                    });
+
+                    this.video.srcObject = this.stream;
+                    this.video.style.display = 'block';
+                    this.canvas.style.display = 'block';
+
+                    this.isFaceRecognitionActive = true;
+                    this.updateStatus('Face recognition active', 'status-dot');
+                    this.startFaceDetectionLoop();
+
+                    console.log('✅ Face recognition started');
+                } catch (error) {
+                    console.error('❌ Error starting face recognition:', error);
+                    this.updateStatus('Camera error', 'status-dot');
+                }
+            }
+
+            stopFaceRecognition() {
+                this.isFaceRecognitionActive = false;
+                
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                }
+                
+                this.video.style.display = 'none';
+                this.canvas.style.display = 'none';
+                
+                this.updateStatus('Face recognition stopped', 'status-dot');
+                console.log('⏹️ Face recognition stopped');
+            }
+
+            startFaceDetectionLoop() {
+                const detectFaces = () => {
+                    if (!this.isFaceRecognitionActive) return;
+
+                    this.frameCount++;
+                    const now = Date.now();
+                    
+                    // Calculate FPS every second
+                    if (now - this.lastFpsTime >= 1000) {
+                        this.currentFps = this.frameCount;
+                        this.frameCount = 0;
+                        this.lastFpsTime = now;
+                        document.getElementById('currentFPS').textContent = this.currentFps;
+                    }
+
+                    // Simulate face detection (in real implementation, use face_recognition library)
+                    this.simulateFaceDetection();
+
+                    requestAnimationFrame(detectFaces);
+                };
+
+                detectFaces();
+            }
+
+            simulateFaceDetection() {
+                // This is a simulation - in real implementation, you would:
+                // 1. Capture frame from video
+                // 2. Use face_recognition library to detect faces
+                // 3. Compare with known face encodings
+                // 4. Update UI with results
+
+                const faceNames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Unknown'];
+                const randomFace = faceNames[Math.floor(Math.random() * faceNames.length)];
+                const confidence = Math.random() * 0.4 + 0.6; // 0.6 to 1.0
+
+                // Simulate face detection every 3 seconds
+                if (this.frameCount % 90 === 0) { // ~3 seconds at 30fps
+                    this.handleFaceDetection(randomFace, confidence);
+                }
+            }
+
+            handleFaceDetection(faceName, confidence) {
+                const isKnown = faceName !== 'Unknown';
+                
+                // Update face overlay
+                document.getElementById('faceName').textContent = faceName;
+                document.getElementById('faceStatus').textContent = isKnown ? 
+                    `Recognized with ${(confidence * 100).toFixed(1)}% confidence` : 
+                    'Unknown face detected';
+                
+                document.getElementById('confidenceBar').style.width = `${confidence * 100}%`;
+
+                // Update robot face based on recognition
+                const robotFace = document.getElementById('robotFace');
+                if (isKnown) {
+                    robotFace.textContent = '😊';
+                    robotFace.style.color = '#10b981';
+                } else {
+                    robotFace.textContent = '🤔';
+                    robotFace.style.color = '#f59e0b';
+                }
+
+                // Handle conversation
+                if (isKnown) {
+                    if (this.shouldInitiateConversation(faceName)) {
+                        this.handleKnownFace(faceName, confidence);
+                    }
+                } else {
+                    if (this.shouldInitiateConversation('Unknown')) {
+                        this.handleUnknownFace();
+                    }
+                }
+            }
+
+            handleKnownFace(name, confidence) {
+                const greetings = [
+                    `Hello ${name}! Great to see you again!`,
+                    `Hi ${name}! Welcome back! How are you today?`,
+                    `Hey ${name}! Nice to see you. What brings you here?`,
+                    `Good to see you again, ${name}! How are things?`
+                ];
+
+                const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+                
+                this.addToConversation('aria', greeting);
+                this.speakText(greeting);
+                this.updateStatus('Speaking to ' + name, 'status-speaking');
+                
+                // Update encounter count
+                if (!this.knownFaces.has(name)) {
+                    this.knownFaces.set(name, { count: 0, lastSeen: Date.now() });
+                }
+                this.knownFaces.get(name).count++;
+                this.knownFaces.get(name).lastSeen = Date.now();
+                
+                this.lastConversationTime.set(name, Date.now());
+                this.updateStats();
+            }
+
+            handleUnknownFace() {
+                const greeting = "Hello! I don't think we've met before. What's your name?";
+                
+                this.addToConversation('aria', greeting);
+                this.speakText(greeting);
+                this.updateStatus('Meeting new person', 'status-listening');
+                
+                // Simulate adding new face after a delay
+                setTimeout(() => {
+                    const newName = 'New Person ' + (this.knownFaces.size + 1);
+                    this.knownFaces.set(newName, { count: 1, lastSeen: Date.now() });
+                    this.addToConversation('user', `Hi, I'm ${newName}`);
+                    this.addToConversation('aria', `Nice to meet you, ${newName}! I'll remember you next time.`);
+                    this.speakText(`Nice to meet you, ${newName}! I'll remember you next time.`);
+                    this.updateStats();
+                }, 2000);
+                
+                this.lastConversationTime.set('Unknown', Date.now());
+            }
+
+            shouldInitiateConversation(name) {
+                const currentTime = Date.now();
+                const lastTime = this.lastConversationTime.get(name);
+                
+                if (!lastTime) return true;
+                
+                return (currentTime - lastTime) >= this.conversationCooldown;
+            }
+
+            startAssistant() {
+                this.updateStatus('Ready to help', 'status-dot');
+                this.speakText('Hello! I\'m ARIA, your AI assistant with face recognition. I\'m ready to help you!');
+            }
+
+            updateStatus(message, className) {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('ariaStatus');
+                
+                statusText.textContent = message;
+                statusDot.className = `status-dot ${className}`;
+            }
+
+            startListening() {
+                if (this.recognition && !this.isListening) {
+                    this.isListening = true;
+                    this.updateStatus('Listening...', 'status-listening');
+                    
+                    const btn = document.getElementById('startConversation');
+                    btn.textContent = '🔴 Stop Listening';
+                    btn.className = 'btn btn-danger';
+
+                    try {
+                        this.recognition.start();
+                    } catch (error) {
+                        console.error('Failed to start recognition:', error);
+                        this.stopListening();
+                    }
+                }
+            }
+
+            stopListening() {
+                if (this.recognition && this.isListening) {
+                    this.isListening = false;
+                    this.recognition.stop();
+                    
+                    const btn = document.getElementById('startConversation');
+                    btn.textContent = '🎤 Start Voice Chat';
+                    btn.className = 'btn btn-primary';
+                    
+                    this.updateStatus('Ready to help', 'status-dot');
+                }
+            }
+
+            sendTextMessage() {
+                const input = document.getElementById('textInput');
+                const message = input.value.trim();
+                if (message) {
+                    this.processUserInput(message);
+                    input.value = '';
+                }
+            }
+
+            async processUserInput(input) {
+                this.addToConversation('user', input);
+                this.updateStatus('Processing...', 'status-dot');
+                
+                try {
+                    const response = await this.generateResponse(input);
+                    this.addToConversation('aria', response);
+                    await this.speakText(response);
+                } catch (error) {
+                    console.error('Error processing input:', error);
+                    const errorResponse = "I apologize, but I'm having trouble processing that right now.";
+                    this.addToConversation('aria', errorResponse);
+                    this.speakText(errorResponse);
+                }
+                
+                this.updateStatus('Ready to help', 'status-dot');
+            }
+
+            async generateResponse(input) {
+                const lowerInput = input.toLowerCase();
+                
+                if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
+                    return `Hello there! I'm so excited to talk with you. I can see you through my camera and I'm ready to help!`;
+                }
+                
+                if (lowerInput.includes('face') || lowerInput.includes('recognize')) {
+                    return `I'm equipped with advanced face recognition technology! I can detect and remember faces, and I'll greet you personally when I see you again.`;
+                }
+                
+                if (lowerInput.includes('how are you') || lowerInput.includes('feeling')) {
+                    return `I'm feeling absolutely wonderful! My face recognition system is working perfectly, and I'm genuinely excited to help you with whatever you need.`;
+                }
+                
+                if (lowerInput.includes('time')) {
+                    const now = new Date();
+                    return `It's currently ${now.toLocaleTimeString()} on ${now.toLocaleDateString()}. I'm always aware of time, but I find our conversations make it feel like time flies by!`;
+                }
+                
+                // Default response
+                return `That's really interesting! I can tell you're thinking about "${input}" and I want to give you the most helpful response. My face recognition system helps me understand who I'm talking to, making our conversation more personal!`;
+            }
+
+            async speakText(text) {
+                if (this.isSpeaking) {
+                    this.stopCurrentAudio();
+                }
+
+                this.isSpeaking = true;
+                this.updateStatus('Speaking...', 'status-speaking');
+
+                try {
+                    const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + this.selectedVoice, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'audio/mpeg',
+                            'Content-Type': 'application/json',
+                            'xi-api-key': this.elevenLabsApiKey
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            model_id: 'eleven_monolingual_v1',
+                            voice_settings: {
+                                stability: 0.5,
+                                similarity_boost: 0.8,
+                                style: 0.3,
+                                use_speaker_boost: true
+                            }
+                        })
+                    });
+
+                    if (response.ok) {
+                        const audioBlob = await response.blob();
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        
+                        this.currentAudio = new Audio(audioUrl);
+                        
+                        this.currentAudio.onended = () => {
+                            this.isSpeaking = false;
+                            this.updateStatus('Ready to help', 'status-dot');
+                            URL.revokeObjectURL(audioUrl);
+                        };
+                        
+                        this.currentAudio.onerror = () => {
+                            this.isSpeaking = false;
+                            this.updateStatus('Ready to help', 'status-dot');
+                            URL.revokeObjectURL(audioUrl);
+                        };
+                        
+                        await this.currentAudio.play();
+                        
+                    } else {
+                        throw new Error(`ElevenLabs API error: ${response.status}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Text-to-speech error:', error);
+                    this.isSpeaking = false;
+                    this.updateStatus('Ready (audio unavailable)', 'status-dot');
+                }
+            }
+
+            stopCurrentAudio() {
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                    this.currentAudio.currentTime = 0;
+                    this.isSpeaking = false;
+                }
+            }
+
+            addToConversation(role, message) {
+                this.conversation.push({ role, message, timestamp: new Date() });
+                this.updateConversationDisplay();
+            }
+
+            updateConversationDisplay() {
+                const display = document.getElementById('conversationDisplay');
+                const maxMessages = 6;
+                
+                const recentConversation = this.conversation.slice(-maxMessages);
+                
+                display.innerHTML = recentConversation.map(item => `
+                    <div class="conversation-item ${item.role}-message">
+                        <strong>${item.role === 'user' ? 'You' : 'ARIA'}:</strong> ${item.message}
+                    </div>
+                `).join('');
+                
+                display.scrollTop = display.scrollHeight;
+            }
+
+            updateStats() {
+                document.getElementById('knownFaces').textContent = this.knownFaces.size;
+                
+                let totalInteractions = 0;
+                this.knownFaces.forEach(face => {
+                    totalInteractions += face.count;
+                });
+                document.getElementById('totalInteractions').textContent = totalInteractions;
+            }
+
+            showStatistics() {
+                let stats = `📊 ARIA Face Recognition Statistics\n`;
+                stats += `================================\n`;
+                stats += `👥 Known Faces: ${this.knownFaces.size}\n`;
+                
+                let totalInteractions = 0;
+                this.knownFaces.forEach((face, name) => {
+                    totalInteractions += face.count;
+                    stats += `👤 ${name}: ${face.count} encounters\n`;
+                });
+                
+                stats += `💬 Total Interactions: ${totalInteractions}\n`;
+                stats += `🎯 Recognition Accuracy: ${(Math.random() * 0.2 + 0.8).toFixed(1)}%\n`;
+                
+                alert(stats);
+            }
+
+            clearDatabase() {
+                if (confirm('Are you sure you want to clear all face recognition data?')) {
+                    this.knownFaces.clear();
+                    this.lastConversationTime.clear();
+                    this.conversation = [];
+                    this.updateStats();
+                    this.updateConversationDisplay();
+                    
+                    const display = document.getElementById('conversationDisplay');
+                    display.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 10px;">Database cleared. Ready for new faces!</div>';
+                    
+                    console.log('🗑️ Face recognition database cleared');
+                }
+            }
+        }
+
+        // Initialize ARIA when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.aria = new ARIAFaceRecognitionSystem();
+        });
+    </script>
+</body>
+</html>
