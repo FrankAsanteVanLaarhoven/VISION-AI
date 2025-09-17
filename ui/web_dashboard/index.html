@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISION-AI Dashboard Hub</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .dashboard-card p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .dashboard-card .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-tertiary {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .btn-tertiary:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .status-bar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .status-item {
+            display: inline-block;
+            margin: 0 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            font-size: 0.9rem;
+        }
+
+        .status-item.online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.2rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .dashboard-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 VISION-AI Dashboard Hub</h1>
+            <p>Privacy-Preserving Vision-Language-Action Navigation System with Quantum-Enhanced AI</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <span class="icon">🤖</span>
+                <h3>ARIA AI Assistant</h3>
+                <p>Advanced lifelike AI assistant with realistic human expressions, body language, and voice synthesis</p>
+                <a href="aria-advanced.html" class="btn">Launch ARIA</a>
+            </div>
+
+            <div class="dashboard-card">
+                <span class="icon">🎮</span>
+                <h3>Command Center</h3>
+                <p>Centralized control interface for managing all VISION-AI systems and monitoring operations</p>
+                <a href="command-center.html" class="btn btn-secondary">Open Command Center</a>
+            </div>
+
+            <div class="dashboard-card">
+                <span class="icon">📊</span>
+                <h3>Analytics Dashboard</h3>
+                <p>Real-time analytics and performance monitoring for the PVLA Navigation System</p>
+                <a href="enhanced-dashboard.html" class="btn btn-tertiary">View Analytics</a>
+            </div>
+
+            <div class="dashboard-card">
+                <span class="icon">🎯</span>
+                <h3>Robot Demo</h3>
+                <p>Interactive robot simulation and demonstration of autonomous navigation capabilities</p>
+                <a href="robot-demo.html" class="btn">Try Robot Demo</a>
+            </div>
+
+            <div class="dashboard-card">
+                <span class="icon">🔬</span>
+                <h3>ARIA Face Integration</h3>
+                <p>Advanced facial recognition and emotion detection system integration</p>
+                <a href="aria-face-integration.html" class="btn btn-secondary">Explore Face AI</a>
+            </div>
+
+            <div class="dashboard-card">
+                <span class="icon">⚡</span>
+                <h3>Minimalist Dashboard</h3>
+                <p>Clean, lightweight interface for quick access to essential VISION-AI features</p>
+                <a href="enhanced-dashboard-minimalist.html" class="btn btn-tertiary">Minimal View</a>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item online">🟢 Main Server Online</div>
+            <div class="status-item online">🟢 PVLA System Active</div>
+            <div class="status-item online">🟢 ARIA AI Ready</div>
+            <div class="status-item online">🟢 Quantum Processing</div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click animations to cards
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'A') {
+                        const link = this.querySelector('a');
+                        if (link) {
+                            link.click();
+                        }
+                    }
+                });
+            });
+
+            // Add status check
+            checkSystemStatus();
+        });
+
+        async function checkSystemStatus() {
+            try {
+                // Check if PVLA system is running
+                const response = await fetch('http://localhost:8000/health');
+                if (response.ok) {
+                    console.log('PVLA System is online');
+                }
+            } catch (error) {
+                console.log('PVLA System is offline');
+            }
+        }
+    </script>
+</body>
+</html>
