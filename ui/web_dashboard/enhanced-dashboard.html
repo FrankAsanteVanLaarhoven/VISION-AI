@@ -1501,6 +1501,348 @@
                            </li>
                        </ul>
                    </div>
+
+            <!-- Frontend Dashboard -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('frontend-dashboard')">
+                    Frontend Dashboard
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="/ui/web_dashboard/index.html" class="menu-link">
+                            <div class="menu-icon">🌐</div>
+                            <div class="menu-text">Main Dashboard</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/ui/web_dashboard/enhanced-dashboard.html" class="menu-link">
+                            <div class="menu-icon">📊</div>
+                            <div class="menu-text">Enhanced Dashboard</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/ui/web_dashboard/command-center.html" class="menu-link">
+                            <div class="menu-icon">🎮</div>
+                            <div class="menu-text">Command Center</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/ui/web_dashboard/aria-advanced.html" class="menu-link">
+                            <div class="menu-icon">🤖</div>
+                            <div class="menu-text">ARIA Interface</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- API Documentation -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('api-documentation')">
+                    API Documentation
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="http://localhost:8000/docs" class="menu-link" target="_blank">
+                            <div class="menu-icon">📚</div>
+                            <div class="menu-text">API Docs</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('api-endpoints')">
+                            <div class="menu-icon">🔗</div>
+                            <div class="menu-text">Endpoints</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('api-testing')">
+                            <div class="menu-icon">🧪</div>
+                            <div class="menu-text">API Testing</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('swagger')">
+                            <div class="menu-icon">📖</div>
+                            <div class="menu-text">Swagger UI</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- System Status -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('system-status')">
+                    System Status
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('health-monitor')">
+                            <div class="menu-icon">📊</div>
+                            <div class="menu-text">Health Monitor</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('system-metrics')">
+                            <div class="menu-icon">📈</div>
+                            <div class="menu-text">System Metrics</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('alerts')">
+                            <div class="menu-icon">🚨</div>
+                            <div class="menu-text">Alerts & Logs</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('diagnostics')">
+                            <div class="menu-icon">🔍</div>
+                            <div class="menu-text">Diagnostics</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Model Training -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('model-training')">
+                    Model Training
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('training-dashboard')">
+                            <div class="menu-icon">🤖</div>
+                            <div class="menu-text">Training Dashboard</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('model-management')">
+                            <div class="menu-icon">🧠</div>
+                            <div class="menu-text">Model Management</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('training-jobs')">
+                            <div class="menu-icon">⚙️</div>
+                            <div class="menu-text">Training Jobs</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('hyperparameters')">
+                            <div class="menu-icon">🎛️</div>
+                            <div class="menu-text">Hyperparameters</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Simulation Demo -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('simulation-demo')">
+                    Simulation Demo
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('simulation-controls')">
+                            <div class="menu-icon">🎮</div>
+                            <div class="menu-text">Simulation Controls</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('scenario-builder')">
+                            <div class="menu-icon">🏗️</div>
+                            <div class="menu-text">Scenario Builder</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('demo-scenarios')">
+                            <div class="menu-icon">🎬</div>
+                            <div class="menu-text">Demo Scenarios</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('simulation-results')">
+                            <div class="menu-icon">📊</div>
+                            <div class="menu-text">Simulation Results</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- AKKF Engine -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('akkf-engine')">
+                    AKKF Engine
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('akkf-status')">
+                            <div class="menu-icon">🧮</div>
+                            <div class="menu-text">AKKF Status</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('kalman-filter')">
+                            <div class="menu-icon">📐</div>
+                            <div class="menu-text">Kalman Filter</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('adaptive-algorithm')">
+                            <div class="menu-icon">🔄</div>
+                            <div class="menu-text">Adaptive Algorithm</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('akkf-metrics')">
+                            <div class="menu-icon">📈</div>
+                            <div class="menu-text">AKKF Metrics</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Stone Soup Fusion -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('stone-soup-fusion')">
+                    Stone Soup Fusion
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('fusion-engine')">
+                            <div class="menu-icon">🥣</div>
+                            <div class="menu-text">Fusion Engine</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('data-fusion')">
+                            <div class="menu-icon">🔗</div>
+                            <div class="menu-text">Data Fusion</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('sensor-fusion')">
+                            <div class="menu-icon">📡</div>
+                            <div class="menu-text">Sensor Fusion</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('fusion-algorithms')">
+                            <div class="menu-icon">🧪</div>
+                            <div class="menu-text">Fusion Algorithms</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Performance Monitor -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('performance-monitor')">
+                    Performance Monitor
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('performance-dashboard')">
+                            <div class="menu-icon">⚡</div>
+                            <div class="menu-text">Performance Dashboard</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('resource-monitor')">
+                            <div class="menu-icon">💻</div>
+                            <div class="menu-text">Resource Monitor</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('benchmarking')">
+                            <div class="menu-icon">🏃</div>
+                            <div class="menu-text">Benchmarking</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('optimization')">
+                            <div class="menu-icon">🎯</div>
+                            <div class="menu-text">Optimization</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Research Integration -->
+            <div class="sidebar-section">
+                <h4 onclick="toggleSection('research-integration')">
+                    Research Integration
+                    <span class="collapse-icon">▼</span>
+                </h4>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('research-dashboard')">
+                            <div class="menu-icon">🎓</div>
+                            <div class="menu-text">Research Dashboard</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('experiments')">
+                            <div class="menu-icon">🔬</div>
+                            <div class="menu-text">Experiments</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('publications')">
+                            <div class="menu-icon">📄</div>
+                            <div class="menu-text">Publications</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="navigateToSection('collaboration')">
+                            <div class="menu-icon">🤝</div>
+                            <div class="menu-text">Collaboration</div>
+                            <div class="status-indicator online"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
