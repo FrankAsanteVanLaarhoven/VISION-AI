@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISION-AI Blockchain & Bo Wei Integration Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 5px;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .blockchain-visualization {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .blockchain-chain {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .block {
+            min-width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .block::after {
+            content: "→";
+            position: absolute;
+            right: -15px;
+            color: #60a5fa;
+            font-size: 1.2rem;
+        }
+
+        .block:last-child::after {
+            display: none;
+        }
+
+        .rwiFi-slam-panel {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .slam-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .api-endpoints {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .endpoint-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .navigation-bar {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .navigation-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Blockchain & Bo Wei Integration</h1>
+            <p>SecureFed Blockchain Validator with Bo Wei Van Laarhoven RWiFiSLAM Enhancement</p>
+        </div>
+
+        <div class="navigation-bar">
+            <a href="/ui/web_dashboard/index.html" class="btn">🏠 Dashboard Hub</a>
+            <a href="/ui/web_dashboard/enhanced-dashboard.html" class="btn">📊 Enhanced Dashboard</a>
+            <a href="/ui/web_dashboard/navigation-controls.html" class="btn">🗺️ Navigation Controls</a>
+            <a href="/ui/web_dashboard/aria-advanced.html" class="btn">🤖 ARIA AI</a>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Blockchain Validator Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-icon">⛓️</span>
+                    <h3 class="card-title">SecureFed Blockchain Validator</h3>
+                </div>
+                
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-value" id="blockchain-blocks">1,247</div>
+                        <div class="status-label">Blocks</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="blockchain-validators">12</div>
+                        <div class="status-label">Validators</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="blockchain-consensus">98.7%</div>
+                        <div class="status-label">Consensus</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="blockchain-security">99.2%</div>
+                        <div class="status-label">Security</div>
+                    </div>
+                </div>
+
+                <ul class="feature-list">
+                    <li>Cosine Similarity Validation</li>
+                    <li>Blockchain Consensus Mechanism</li>
+                    <li>Malicious Client Detection (30% threshold)</li>
+                    <li>Secure Model Aggregation</li>
+                    <li>Federated Learning Defense</li>
+                    <li>Real-time Validation Status</li>
+                </ul>
+
+                <div class="blockchain-visualization">
+                    <h4>Blockchain Chain Status</h4>
+                    <div class="blockchain-chain">
+                        <div class="block">Block 1</div>
+                        <div class="block">Block 2</div>
+                        <div class="block">Block 3</div>
+                        <div class="block">Block 4</div>
+                        <div class="block">Block 5</div>
+                        <div class="block">Block 6</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bo Wei RWiFiSLAM Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-icon">📡</span>
+                    <h3 class="card-title">Bo Wei RWiFiSLAM Enhancement</h3>
+                </div>
+                
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-value" id="rwifi-accuracy">94.3%</div>
+                        <div class="status-label">Accuracy</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="rwifi-range">45.2m</div>
+                        <div class="status-label">Range</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="rwifi-clusters">8</div>
+                        <div class="status-label">Clusters</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="rwifi-confidence">0.87</div>
+                        <div class="status-label">Confidence</div>
+                    </div>
+                </div>
+
+                <ul class="feature-list">
+                    <li>WiFi RTT Clustering for Loop Closure</li>
+                    <li>Robust Pose Graph SLAM Optimization</li>
+                    <li>Quantum Sensor Confidence Weighting</li>
+                    <li>GPS-independent Navigation</li>
+                    <li>Real-time WiFi Ranging</li>
+                    <li>Multi-modal Sensor Fusion</li>
+                </ul>
+
+                <div class="rwiFi-slam-panel">
+                    <h4>RWiFiSLAM Metrics</h4>
+                    <div class="slam-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">2.3ms</div>
+                            <div class="metric-label">Latency</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">156</div>
+                            <div class="metric-label">APs Detected</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">0.12m</div>
+                            <div class="metric-label">Error</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">99.1%</div>
+                            <div class="metric-label">Uptime</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Status Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-icon">🔗</span>
+                    <h3 class="card-title">Bo Wei Integration Status</h3>
+                </div>
+                
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-value" id="integration-status">100%</div>
+                        <div class="status-label">Complete</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="api-endpoints">24</div>
+                        <div class="status-label">APIs</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="active-modules">8</div>
+                        <div class="status-label">Modules</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="performance">98.5%</div>
+                        <div class="status-label">Performance</div>
+                    </div>
+                </div>
+
+                <ul class="feature-list">
+                    <li>AI Reality Comprehension Engine</li>
+                    <li>Human-Robot Supply Chain Integration</li>
+                    <li>Enhanced Quantum Privacy Transform</li>
+                    <li>Safety-Enhanced Federated Trainer</li>
+                    <li>SecureFed Blockchain Validator</li>
+                    <li>RWiFiSLAM Enhancement</li>
+                </ul>
+
+                <div class="api-endpoints">
+                    <h4>Key API Endpoints</h4>
+                    <div class="endpoint-item">POST /api/v3/reality/comprehend</div>
+                    <div class="endpoint-item">GET /api/v3/blockchain/validate</div>
+                    <div class="endpoint-item">POST /api/v3/rwifi/slam</div>
+                    <div class="endpoint-item">GET /api/v3/supply-chain/status</div>
+                </div>
+            </div>
+
+            <!-- Performance Monitoring Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h3 class="card-title">Performance Monitoring</h3>
+                </div>
+                
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-value" id="cpu-usage">23%</div>
+                        <div class="status-label">CPU Usage</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="memory-usage">67%</div>
+                        <div class="status-label">Memory</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="network-latency">12ms</div>
+                        <div class="status-label">Latency</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="throughput">1.2GB/s</div>
+                        <div class="status-label">Throughput</div>
+                    </div>
+                </div>
+
+                <ul class="feature-list">
+                    <li>Real-time Performance Metrics</li>
+                    <li>Blockchain Transaction Monitoring</li>
+                    <li>RWiFiSLAM Accuracy Tracking</li>
+                    <li>System Health Monitoring</li>
+                    <li>Alert Management</li>
+                    <li>Historical Data Analysis</li>
+                </ul>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn" onclick="refreshMetrics()">🔄 Refresh Metrics</button>
+                    <button class="btn btn-secondary" onclick="exportData()">📥 Export Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real-time metrics simulation
+        function updateMetrics() {
+            // Blockchain metrics
+            document.getElementById('blockchain-blocks').textContent = (1247 + Math.floor(Math.random() * 10)).toLocaleString();
+            document.getElementById('blockchain-consensus').textContent = (98.5 + Math.random() * 1).toFixed(1) + '%';
+            document.getElementById('blockchain-security').textContent = (99.0 + Math.random() * 1).toFixed(1) + '%';
+            
+            // RWiFiSLAM metrics
+            document.getElementById('rwifi-accuracy').textContent = (94.0 + Math.random() * 2).toFixed(1) + '%';
+            document.getElementById('rwifi-range').textContent = (45.0 + Math.random() * 2).toFixed(1) + 'm';
+            document.getElementById('rwifi-clusters').textContent = Math.floor(7 + Math.random() * 4);
+            document.getElementById('rwifi-confidence').textContent = (0.85 + Math.random() * 0.1).toFixed(2);
+            
+            // Performance metrics
+            document.getElementById('cpu-usage').textContent = Math.floor(20 + Math.random() * 10) + '%';
+            document.getElementById('memory-usage').textContent = Math.floor(60 + Math.random() * 15) + '%';
+            document.getElementById('network-latency').textContent = Math.floor(10 + Math.random() * 5) + 'ms';
+        }
+
+        function refreshMetrics() {
+            updateMetrics();
+            // Add visual feedback
+            const btn = event.target;
+            btn.textContent = '✅ Refreshed';
+            setTimeout(() => {
+                btn.textContent = '🔄 Refresh Metrics';
+            }, 2000);
+        }
+
+        function exportData() {
+            // Simulate data export
+            const btn = event.target;
+            btn.textContent = '📥 Exporting...';
+            setTimeout(() => {
+                btn.textContent = '✅ Exported';
+                setTimeout(() => {
+                    btn.textContent = '📥 Export Data';
+                }, 2000);
+            }, 1500);
+        }
+
+        // Initialize metrics and update every 5 seconds
+        updateMetrics();
+        setInterval(updateMetrics, 5000);
+
+        // Add some interactive blockchain visualization
+        function animateBlockchain() {
+            const blocks = document.querySelectorAll('.block');
+            blocks.forEach((block, index) => {
+                setTimeout(() => {
+                    block.style.transform = 'scale(1.1)';
+                    block.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.5)';
+                    setTimeout(() => {
+                        block.style.transform = 'scale(1)';
+                        block.style.boxShadow = 'none';
+                    }, 500);
+                }, index * 200);
+            });
+        }
+
+        // Animate blockchain every 10 seconds
+        setInterval(animateBlockchain, 10000);
+    </script>
+</body>
+</html>
