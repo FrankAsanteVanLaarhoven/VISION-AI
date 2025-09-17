@@ -5,275 +5,505 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VISION-AI Dashboard Hub</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="assets/css/premium-bw-theme.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
+        /* Custom styles for main dashboard hub */
+        .dashboard-header {
+            background: var(--gradient-light);
+            border-bottom: 3px solid var(--primary-black);
             padding: 60px 0;
-            margin-bottom: 40px;
+            text-align: center;
+            margin-bottom: 60px;
         }
-
-        .header h1 {
+        
+        .dashboard-header h1 {
             font-size: 4rem;
             font-weight: 900;
+            color: var(--primary-black);
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -0.02em;
         }
-
-        .header p {
+        
+        .dashboard-header p {
             font-size: 1.5rem;
-            opacity: 0.9;
+            color: var(--text-secondary);
             max-width: 800px;
             margin: 0 auto;
             line-height: 1.6;
         }
-
+        
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+            gap: 32px;
+            padding: 0 24px;
+            margin-bottom: 60px;
         }
-
+        
         .dashboard-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: var(--bg-primary);
+            border: 2px solid var(--border-primary);
             border-radius: 20px;
-            padding: 30px;
+            padding: 40px;
             text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-
+        
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-silver);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .dashboard-card:hover::before {
+            transform: scaleX(1);
+        }
+        
         .dashboard-card:hover {
-            transform: translateY(-10px);
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 80px var(--shadow-medium);
+            border-color: var(--primary-black);
         }
-
-        .dashboard-card h3 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            color: #ffffff;
-        }
-
-        .dashboard-card p {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-
+        
         .dashboard-card .icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
+            font-size: 4rem;
+            margin-bottom: 24px;
             display: block;
+            filter: grayscale(100%);
+            transition: all 0.4s ease;
         }
-
-        .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
+        
+        .dashboard-card:hover .icon {
+            filter: grayscale(0%);
+            transform: scale(1.1);
+        }
+        
+        .dashboard-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        
+        .dashboard-card p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            line-height: 1.6;
             font-size: 1rem;
         }
-
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 32px;
+            border: 2px solid var(--primary-black);
+            background: var(--primary-white);
+            color: var(--primary-black);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            min-width: 160px;
+        }
+        
         .btn:hover {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
+            background: var(--primary-black);
+            color: var(--primary-white);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 12px 30px var(--shadow-medium);
         }
-
+        
         .btn-secondary {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: var(--primary-black);
+            color: var(--primary-white);
+            border-color: var(--primary-black);
         }
-
+        
         .btn-secondary:hover {
-            background: linear-gradient(135deg, #059669, #047857);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            background: var(--gray-800);
+            border-color: var(--gray-800);
         }
-
-        .btn-tertiary {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+        
+        .btn-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
         }
-
-        .btn-tertiary:hover {
-            background: linear-gradient(135deg, #d97706, #b45309);
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
-        }
-
-        .status-bar {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 40px;
+        
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-primary);
+            padding: 40px 0;
             text-align: center;
+            margin-top: 60px;
         }
-
-        .status-item {
-            display: inline-block;
-            margin: 0 20px;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
+        
+        .footer p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-black);
+            color: var(--primary-white);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .feature-highlight {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .feature-highlight h4 {
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-list li {
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
             font-size: 0.9rem;
         }
-
-        .status-item.online {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
+        
+        .feature-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--text-primary);
+            font-weight: bold;
         }
-
+        
         @media (max-width: 768px) {
-            .header h1 {
+            .dashboard-header h1 {
                 font-size: 2.5rem;
             }
             
-            .header p {
+            .dashboard-header p {
                 font-size: 1.2rem;
             }
             
             .dashboard-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 24px;
+                padding: 0 16px;
             }
             
             .dashboard-card {
-                padding: 20px;
+                padding: 32px 24px;
+                min-height: 240px;
+            }
+            
+            .dashboard-card .icon {
+                font-size: 3rem;
+            }
+            
+            .dashboard-card h3 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .dashboard-header {
+                padding: 40px 0;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-card {
+                padding: 24px 20px;
+            }
+            
+            .btn {
+                padding: 12px 24px;
+                font-size: 14px;
+                min-width: 140px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="dashboard-header">
+        <h1>VISION-AI Dashboard Hub</h1>
+        <p>Quantum-Enhanced Privacy-preserving Vision-Language-Action Platform with Advanced Technology Integration</p>
+    </div>
+
     <div class="container">
-        <div class="header">
-            <h1>🚀 VISION-AI Dashboard Hub</h1>
-            <p>Privacy-Preserving Vision-Language-Action Navigation System with Quantum-Enhanced AI</p>
-        </div>
-
         <div class="dashboard-grid">
+            <!-- Enhanced Dashboard -->
             <div class="dashboard-card">
-                <span class="icon">🤖</span>
-                <h3>ARIA AI Assistant</h3>
-                <p>Advanced lifelike AI assistant with realistic human expressions, body language, and voice synthesis</p>
-                <a href="aria-advanced.html" class="btn">Launch ARIA</a>
-            </div>
-
-            <div class="dashboard-card">
-                <span class="icon">🎮</span>
-                <h3>Command Center</h3>
-                <p>Centralized control interface for managing all VISION-AI systems and monitoring operations</p>
-                <a href="command-center.html" class="btn btn-secondary">Open Command Center</a>
-            </div>
-
-            <div class="dashboard-card">
+                <div class="status-badge">Active</div>
                 <span class="icon">📊</span>
-                <h3>Analytics Dashboard</h3>
-                <p>Real-time analytics and performance monitoring for the PVLA Navigation System</p>
-                <a href="enhanced-dashboard.html" class="btn btn-tertiary">View Analytics</a>
+                <h3>Enhanced Dashboard</h3>
+                <p>Comprehensive control center with advanced QEP-VLA technology integration, blockchain validation, and real-time monitoring</p>
+                <a href="enhanced-dashboard.html" class="btn">
+                    <span class="btn-icon">🚀</span>
+                    Open Enhanced
+                </a>
+                <div class="feature-highlight">
+                    <h4>Key Features:</h4>
+                    <ul class="feature-list">
+                        <li>AI Reality Comprehension Engine</li>
+                        <li>Blockchain & Bo Wei Integration</li>
+                        <li>Real-time Performance Monitoring</li>
+                        <li>Advanced Analytics Dashboard</li>
+                    </ul>
+                </div>
             </div>
 
+            <!-- Command Center -->
             <div class="dashboard-card">
+                <div class="status-badge">Online</div>
                 <span class="icon">🎯</span>
-                <h3>Robot Demo</h3>
-                <p>Interactive robot simulation and demonstration of autonomous navigation capabilities</p>
-                <a href="robot-demo.html" class="btn">Try Robot Demo</a>
+                <h3>Command Center</h3>
+                <p>Mission control for fleet operations, robotics management, and system coordination with advanced command interfaces</p>
+                <a href="command-center.html" class="btn">
+                    <span class="btn-icon">🎮</span>
+                    Open Command
+                </a>
+                <div class="feature-highlight">
+                    <h4>Key Features:</h4>
+                    <ul class="feature-list">
+                        <li>Fleet Management System</li>
+                        <li>Robotics Control Interface</li>
+                        <li>Mission Planning Tools</li>
+                        <li>Real-time Status Monitoring</li>
+                    </ul>
+                </div>
             </div>
 
+            <!-- Navigation Controls -->
             <div class="dashboard-card">
-                <span class="icon">🔬</span>
-                <h3>ARIA Face Integration</h3>
-                <p>Advanced facial recognition and emotion detection system integration</p>
-                <a href="aria-face-integration.html" class="btn btn-secondary">Explore Face AI</a>
-            </div>
-
-            <div class="dashboard-card">
-                <span class="icon">⚡</span>
-                <h3>Minimalist Dashboard</h3>
-                <p>Clean, lightweight interface for quick access to essential VISION-AI features</p>
-                <a href="enhanced-dashboard-minimalist.html" class="btn btn-tertiary">Minimal View</a>
-            </div>
-
-            <div class="dashboard-card">
+                <div class="status-badge">Active</div>
                 <span class="icon">🗺️</span>
                 <h3>Navigation Controls</h3>
-                <p>Advanced map controls with vehicle tracking, route planning, and city management</p>
-                <a href="navigation-controls.html" class="btn">Open Navigation</a>
+                <p>Advanced map controls with vehicle tracking, route planning, and city management with RWiFiSLAM enhancement</p>
+                <a href="navigation-controls.html" class="btn">
+                    <span class="btn-icon">🧭</span>
+                    Open Navigation
+                </a>
+                <div class="feature-highlight">
+                    <h4>Key Features:</h4>
+                    <ul class="feature-list">
+                        <li>RWiFiSLAM Enhancement</li>
+                        <li>Vehicle Tracking System</li>
+                        <li>Route Planning Tools</li>
+                        <li>City Management Interface</li>
+                    </ul>
+                </div>
             </div>
 
+            <!-- Blockchain & Bo Wei Integration -->
             <div class="dashboard-card">
+                <div class="status-badge">Live</div>
                 <span class="icon">⛓️</span>
                 <h3>Blockchain & Bo Wei Integration</h3>
-                <p>SecureFed Blockchain Validator with Bo Wei Van Laarhoven RWiFiSLAM Enhancement</p>
-                <a href="blockchain-dashboard.html" class="btn btn-secondary">Open Blockchain</a>
+                <p>SecureFed Blockchain Validator with Bo Wei Van Laarhoven RWiFiSLAM Enhancement and federated learning</p>
+                <a href="blockchain-dashboard.html" class="btn btn-secondary">
+                    <span class="btn-icon">🔗</span>
+                    Open Blockchain
+                </a>
+                <div class="feature-highlight">
+                    <h4>Key Features:</h4>
+                    <ul class="feature-list">
+                        <li>SecureFed Blockchain Validator</li>
+                        <li>Bo Wei RWiFiSLAM Enhancement</li>
+                        <li>Federated Learning Defense</li>
+                        <li>Real-time Validation Status</li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <div class="status-bar">
-            <div class="status-item online">🟢 Main Server Online</div>
-            <div class="status-item online">🟢 PVLA System Active</div>
-            <div class="status-item online">🟢 ARIA AI Ready</div>
-            <div class="status-item online">🟢 Quantum Processing</div>
+            <!-- ARIA AI Assistant -->
+            <div class="dashboard-card">
+                <div class="status-badge">Ready</div>
+                <span class="icon">🤖</span>
+                <h3>ARIA AI Assistant</h3>
+                <p>Advanced AI assistant with natural language processing, voice commands, and intelligent automation capabilities</p>
+                <a href="aria-advanced.html" class="btn">
+                    <span class="btn-icon">🧠</span>
+                    Open ARIA
+                </a>
+                <div class="feature-highlight">
+                    <h4>Key Features:</h4>
+                    <ul class="feature-list">
+                        <li>Natural Language Processing</li>
+                        <li>Voice Command Interface</li>
+                        <li>Intelligent Automation</li>
+                        <li>Context-Aware Responses</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Master Dashboard -->
+            <div class="dashboard-card">
+                <div class="status-badge">System</div>
+                <span class="icon">🏠</span>
+                <h3>Master Dashboard</h3>
+                <p>System-wide overview with comprehensive monitoring, analytics, and management tools for all VISION-AI components</p>
+                <a href="/master-dashboard.html" class="btn">
+                    <span class="btn-icon">📈</span>
+                    Open Master
+                </a>
+                <div class="feature-highlight">
+                    <h4>Key Features:</h4>
+                    <ul class="feature-list">
+                        <li>System-wide Monitoring</li>
+                        <li>Comprehensive Analytics</li>
+                        <li>Performance Metrics</li>
+                        <li>Management Tools</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
+    <div class="footer">
+        <p>© 2024 VISION-AI Platform. Quantum-Enhanced Privacy-preserving Vision-Language-Action Technology.</p>
+    </div>
+
     <script>
-        // Add some interactive features
+        // Add interactive effects
         document.addEventListener('DOMContentLoaded', function() {
-            // Add click animations to cards
+            // Add hover effects to dashboard cards
             const cards = document.querySelectorAll('.dashboard-card');
             cards.forEach(card => {
-                card.addEventListener('click', function(e) {
-                    if (e.target.tagName !== 'A') {
-                        const link = this.querySelector('a');
-                        if (link) {
-                            link.click();
-                        }
-                    }
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-12px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
                 });
             });
-
-            // Add status check
-            checkSystemStatus();
+            
+            // Add click effects to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Create ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(0, 0, 0, 0.1);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Add status badge animations
+            const badges = document.querySelectorAll('.status-badge');
+            badges.forEach(badge => {
+                badge.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1)';
+                });
+                
+                badge.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
         });
-
-        async function checkSystemStatus() {
-            try {
-                // Check if PVLA system is running
-                const response = await fetch('http://localhost:8000/health');
-                if (response.ok) {
-                    console.log('PVLA System is online');
+        
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
                 }
-            } catch (error) {
-                console.log('PVLA System is offline');
             }
+            
+            .btn {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .status-badge {
+                transition: transform 0.3s ease;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add loading animation for navigation
+        function showLoading(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="btn-icon">⏳</span>Loading...';
+            button.style.pointerEvents = 'none';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.pointerEvents = 'auto';
+            }, 1000);
         }
+        
+        // Add click handlers for navigation
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (this.href && !this.href.includes('#')) {
+                    showLoading(this);
+                }
+            });
+        });
     </script>
 </body>
 </html>
